@@ -821,7 +821,7 @@
     position: sticky;
     top: 0;
     background: #eef0f1;
-    z-index: 10;
+    z-index: 40;
 }
 
 .ga-page-head-heading {
