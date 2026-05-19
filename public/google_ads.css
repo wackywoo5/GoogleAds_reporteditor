@@ -413,6 +413,12 @@
     color: #1a73e8;
 }
 
+.ga-rail-item .material-symbols-outlined-extended {
+    font-family: 'Material Symbols Outlined extended';
+    font-size: 24px;
+    font-style: normal;
+}
+
 .ga-rail-item.active .material-symbols-outlined {
     background: #1a73e8;
     color: #fff;
