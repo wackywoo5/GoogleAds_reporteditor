@@ -1247,6 +1247,17 @@ createApp({
         toggleNotifications() {
             this.isNotificationsOpen = !this.isNotificationsOpen
         },
+        switchPage(mode) {
+        this.pageMode = mode;
+        // 更新浏览器地址栏，实现 /overview 或 /reporteditor 的效果
+        window.history.pushState(null, '', `/aw/${mode}`);
+        
+        // 强制重置滚动位置
+        this.$nextTick(() => {
+            const main = document.querySelector('.ga-main');
+            if (main) main.scrollTop = 0;
+        });
+        }
     },
     async mounted() {
         await this.loadData();
