@@ -160,12 +160,14 @@ createApp({
                 },
                 assets: [],
                 assetSummary: {
-                    headlines: '3/3',
-                    descriptions: '3/3',
-                    images: '10/10',
+                    headlines: '3/5',
+                    descriptions: '3/5',
+                    images: '10/20',
                     videos: '0/20'
-                }
-            }
+                },
+                assetSummaryProgress:[0.6,0.6,0.5,0],
+            },
+            floatingAddIsFixed: false
         };
     },
     computed: {
@@ -639,6 +641,17 @@ createApp({
 
             this.assetSortKey = key;
             this.assetSortDirection = key === 'assetType' ? 'asc' : 'desc';
+        },
+        formatCurrency(value) {
+            if (value === 0 || value === undefined) return '-';
+            const fixedValue = value.toFixed(2);
+            const parts = fixedValue.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return '$' + parts.join('.');
+        },
+        formatNumber(value, decimals = 0) {
+            if (value === 0 || value === undefined) return '-';
+            return value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         },
         toggleAssetCostSort() {
             this.toggleAssetSort('cost');
@@ -1259,6 +1272,14 @@ createApp({
             const mainElement = document.querySelector('.ga-main');
             if (mainElement) {
                 this.isContextBarHidden = mainElement.scrollTop > 50;
+                
+                // Manage floating add button sticky effect
+                const tablePanel = document.querySelector('.ga-table-panel');
+                if (tablePanel) {
+                    const rect = tablePanel.getBoundingClientRect();
+                    // Switch to fixed position when table panel top is above 155px threshold
+                    this.floatingAddIsFixed = rect.top < 155;
+                }
             }
             if (this.showDatePicker) {
                 this.$nextTick(() => {

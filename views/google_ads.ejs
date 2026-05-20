@@ -257,7 +257,7 @@
                         </div>
                         <div v-if="pageMode !== 'campaigns'" class="ga-selector"
                             :class="{ active: pageMode === 'adassets' }" @click.stop="toggleDropdown('adgroup')">
-                            <small>Ad groups (1)</small>
+                            <small>Ad groups</small>
                             <a>{{ pageMode === 'adassets' ? adGroup.adGroup : 'Select an ad group' }}</a>
                             <span class="material-symbols-outlined">arrow_drop_down</span>
                             <div v-if="dropdown === 'adgroup'" class="ga-dropdown">
@@ -291,18 +291,14 @@
                 <section class="ga-page-head" :class="{ 'ga-page-head--adassets': pageMode === 'adassets' }" v-if="pageMode !== 'reporteditor'">
                     <div class="ga-page-head-heading">
                         <h1>{{ pageTitle }}</h1>
-                        <div v-if="isContextBarHidden && pageMode !== 'adassets'" class="ga-page-head-selector-wrapper">
-                            <div class="ga-selector active" @click.stop="toggleDropdown('view')">
-                                <small>View (2 filters)</small>
-                                <a><span class="material-symbols-outlined">home</span> All campaigns</a>
-                                <span class="material-symbols-outlined">arrow_drop_down</span>
-                                <div v-if="dropdown === 'view'" class="ga-dropdown">
-                                    <a href="/aw/campaigns">All campaigns</a>
-                                </div>
+                        <div v-if="isContextBarHidden && (pageMode === 'campaigns' || pageMode === 'adassets')" class="ga-page-head-selector-wrapper">
+                            <div class="ga-ContextBarHidden">
+                                <small>Ad groups</small>
+                                <a>{{ pageMode === 'adassets' ? adGroup.adGroup : 'Ad group 1' }}</a>
                             </div>
                         </div>
                     </div>
-                    <div v-if="pageMode !== 'adassets'" class="ga-date-row">
+                    <div v-if="pageMode === 'campaigns' || pageMode === 'adassets'" class="ga-date-row">
                         <span>{{ getDateOptionLabel(appliedDateOption) }}</span>
                         <button ref="dateSelectRef" class="ga-date-button" type="button" @click.stop="toggleDatePicker">
                             {{ dateRangeLabel }}
@@ -604,10 +600,10 @@
                         <div><strong>Ad strength</strong><span>Good</span></div>
                     </div>
                     <div class="ga-strength-counts">
-                        <span><b></b>Headlines<br>{{ data.assetSummary.headlines }}</span>
-                        <span><b></b>Descriptions<br>{{ data.assetSummary.descriptions }}</span>
-                        <span><b></b>Images<br>{{ data.assetSummary.images }}</span>
-                        <span><b></b>Videos<br>{{ data.assetSummary.videos }}</span>
+                        <span><b :data-fill="data.assetSummaryProgress[0]" :style="{ '--fill-percent': data.assetSummaryProgress[0] }" :class="{ 'ga-filled': data.assetSummaryProgress[0] >= 1 }"></b>Headlines<br>{{ data.assetSummary.headlines }}</span>
+                        <span><b :data-fill="data.assetSummaryProgress[1]" :style="{ '--fill-percent': data.assetSummaryProgress[1] }" :class="{ 'ga-filled': data.assetSummaryProgress[1] >= 1 }"></b>Descriptions<br>{{ data.assetSummary.descriptions }}</span>
+                        <span><b :data-fill="data.assetSummaryProgress[2]" :style="{ '--fill-percent': data.assetSummaryProgress[2] }" :class="{ 'ga-filled': data.assetSummaryProgress[2] >= 1 }"></b>Images<br>{{ data.assetSummary.images }}</span>
+                        <span><b :data-fill="data.assetSummaryProgress[3]" :style="{ '--fill-percent': data.assetSummaryProgress[3] }" :class="{ 'ga-filled': data.assetSummaryProgress[3] >= 1 }"></b>Videos<br>{{ data.assetSummary.videos }}</span>
                     </div>
                     <span class="material-symbols-outlined">expand_more</span>
                 </section>
@@ -676,7 +672,7 @@
                     'ga-table-panel--campaign-refreshing': isRefreshing && pageMode === 'campaigns',
                     'ga-table-panel--adassets': pageMode === 'adassets'
                 }">
-                    <button class="ga-floating-add" type="button"
+                   <button class="ga-floating-add" :class="{ 'ga-floating-add--fixed': floatingAddIsFixed }" type="button"
                         :aria-label="pageMode === 'adassets' ? 'Edit' : 'Create'">
                         <span class="material-symbols-outlined">{{ pageMode === 'adassets' ? 'edit' : 'add' }}</span>
                         <span class="ga-create-tooltip">Create campaign</span>
@@ -941,13 +937,13 @@
                                     <td>{{ asset.status }}</td>
                                     <td>{{ asset.assetType }}</td>
                                     <td><span class="ga-dashed">{{ asset.performance }}</span></td>
-                                    <td>{{ numberOrZero(asset.clicks) }}</td>
+                                    <td>{{ formatNumber(asset.clicks) }}</td>
                                     <td>{{ asset.clicks ? percent(asset.ctr) : '-' }}</td>
-                                    <td>{{ numberOrZero(asset.impressions) }}</td>
-                                    <td>{{ money(asset.cost) }}</td>
-                                    <td>{{ numberOrZero(asset.installs) }}</td>
+                                    <td>{{ formatNumber(asset.impressions) }}</td>
+                                    <td>{{ formatCurrency(asset.cost) }}</td>
+                                    <td>{{ formatCurrency(asset.installs) }}</td>
                                     <td>{{ moneyOrDash(asset.costPerInstall) }}</td>
-                                    <td>{{ numberOrZero(asset.inAppActions) }}</td>
+                                    <td>{{ formatCurrency(asset.inAppActions) }}</td>
                                     <td>{{ moneyOrDash(asset.costPerInAppAction) }}</td>
                                 </tr>
                             </tbody>

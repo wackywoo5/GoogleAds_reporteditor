@@ -1707,6 +1707,7 @@ body.is-column-resizing * {
     display: flex;
     width: 100%;
     flex-direction: column;
+    z-index: 100;
 }
 
 .date-picker-content {
