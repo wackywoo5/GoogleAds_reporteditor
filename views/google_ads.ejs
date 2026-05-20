@@ -936,13 +936,13 @@
                                     <td>{{ asset.status }}</td>
                                     <td>{{ asset.assetType }}</td>
                                     <td><span class="ga-dashed">{{ asset.performance }}</span></td>
-                                    <td>{{ numberOrZero(asset.clicks) }}</td>
+                                    <td>{{ formatNumber(asset.clicks) }}</td>
                                     <td>{{ asset.clicks ? percent(asset.ctr) : '-' }}</td>
-                                    <td>{{ numberOrZero(asset.impressions) }}</td>
-                                    <td>{{ money(asset.cost) }}</td>
-                                    <td>{{ numberOrZero(asset.installs) }}</td>
+                                    <td>{{ formatNumber(asset.impressions) }}</td>
+                                    <td>{{ formatCurrency(asset.cost) }}</td>
+                                    <td>{{ formatCurrency(asset.installs) }}</td>
                                     <td>{{ moneyOrDash(asset.costPerInstall) }}</td>
-                                    <td>{{ numberOrZero(asset.inAppActions) }}</td>
+                                    <td>{{ formatCurrency(asset.inAppActions) }}</td>
                                     <td>{{ moneyOrDash(asset.costPerInAppAction) }}</td>
                                 </tr>
                             </tbody>

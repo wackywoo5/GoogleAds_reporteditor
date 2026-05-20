@@ -642,6 +642,17 @@ createApp({
             this.assetSortKey = key;
             this.assetSortDirection = key === 'assetType' ? 'asc' : 'desc';
         },
+        formatCurrency(value) {
+            if (value === 0 || value === undefined) return '-';
+            const fixedValue = value.toFixed(2);
+            const parts = fixedValue.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return '$' + parts.join('.');
+        },
+        formatNumber(value, decimals = 0) {
+            if (value === 0 || value === undefined) return '-';
+            return value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        },
         toggleAssetCostSort() {
             this.toggleAssetSort('cost');
         },
