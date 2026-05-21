@@ -114,11 +114,44 @@
                     <span class="material-symbols-outlined">help</span>
                     <span class="btn-text">Help</span>
                 </button>
-                <button class="header-btn notification-btn">
+                <button ref="firstNotificationButton" class="header-btn notification-btn" type="button"  @click.stop="toggleFirstNotifications">
                     <span class="material-symbols-outlined">notifications</span>
                     <span class="notification-badge">!</span>
                     <span class="btn-text">Notifications</span>
                 </button>
+                <transition name="first-notifications-transition-popup">
+                    <div v-if="isFirstNotificationsOpen" ref="firstNotificationPopup" class="first-notifications-popup" @click.stop>
+                        <div class="first-notifications-header">
+                            Notifications
+                        </div>
+                        <div class="first-notification-item">
+                            <div class="first-notification-icon error">!</div>
+                            <div class="first-notification-content">
+                                <h4>1 account has billing announcements</h4>
+                                <p>View individual accounts for details.</p>
+                                <button class="first-view-btn">View</button>
+                            </div>
+                        </div>
+                        <div class="first-notification-item">
+                            <div class="first-notification-icon error">!</div>
+                            <div class="first-notification-content">
+                                <h4>2 accounts could benefit from improved<br>security</h4>
+                                <p>Check out suggestions to improve the security<br>of 2 accounts.</p>
+                                <button class="first-view-btn">View</button>
+                            </div>
+                        </div>
+                        <div class="first-notification-item">
+                            <div class="first-notification-icon warn">i</div>
+                            <div class="first-notification-content">
+                                <h4>Thanks for verifying 1 account!</h4>
+                                <p>Thanks for verifying! The verified advertiser<br>name and location for each of these
+                                    accounts<br>will now appear in your ad disclosures. We'll let<br> you know if we
+                                    need more information in<br>future.</p>
+                                <button class="first-text-btn">Learn more</button>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
                 <div class="user-section">
                     <div class="user-info">
                         <div class="user-connect">
@@ -795,6 +828,42 @@ drag_indicator
     <!-- Vue.js CDN -->
     <script src="/js/vue.global.js"></script>
     <script src="/app.js"></script>
+    <script>
+        document.addEventListener('click', (e) => {
+            // popup
+            const popup =
+                document.querySelector('.first-notifications-popup')
+
+            // 按钮
+            const button =
+                document.querySelector('.notification-btn')
+
+            // popup 未打开
+            if (!popup) {
+                return
+            }
+
+            // 点击 popup 内部
+            if (popup.contains(e.target)) {
+                return
+            }
+
+            // 点击按钮
+            if (button.contains(e.target)) {
+                return
+            }
+
+            // 获取 Vue 实例
+            const vm =
+                document.querySelector('#app')
+                    .__vue_app__
+                    ._instance
+                    .proxy
+
+            // 关闭
+            vm.isFirstNotificationsOpen = false
+        })
+    </script>
 </body>
 
 </html>

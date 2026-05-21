@@ -769,27 +769,27 @@
                                     </td>
                                     <td class="budget-col">
                                         <span style="display: inline-flex; align-items: center; gap: 4px;">
-                                            ${{ fixed(campaign.Buget || campaign.budget) }}/day
+                                            {{ formatCurrency(campaign.Buget || campaign.budget) }}/day
                                             <i class="material-symbols-outlined" style="font-size: 14px;">image</i>
                                             <!-- <i class="material-symbols-outlined" style="font-size: 14px;">edit</i> -->
                                         </span>
                                     </td>
                                     <td><span class="ga-dashed">{{ dash(campaign.Status || campaign.status) }}</span>
                                     </td>
-                                    <td>{{ dash(campaign.OptimizationScore || campaign.optimizationScore) }}</td>
+                                    <td><span class="ga-optimization-score">{{ percent(campaign.OptimizationScore || campaign.optimizationScore) }}</span></td>
                                     <td>{{ dash(campaign.CampaignType || campaign.campaignType) }}</td>
-                                    <td>{{ moneyOrDash(campaign.costPerInstall) }}</td>
-                                    <td>{{ moneyOrDash(campaign.costPerInAppActions || campaign.costPerInAppAction) }}
+                                    <td>{{ formatCurrency(campaign.costPerInstall) }}</td>
+                                    <td>{{ formatCurrency(campaign.costPerInAppActions || campaign.costPerInAppAction) }}
                                     </td>
-                                    <td>{{ numberOrZero(campaign.ViewThroughConv || campaign.viewThroughConv) }}</td>
-                                    <td>{{ numberOrZero(campaign.installs) }}</td>
-                                    <td>{{ numberOrZero(campaign.inAppActions) }}</td>
-                                    <td>{{ numberOrZero(campaign.ParticipatedInAppActions) }}</td>
-                                    <td>{{ money(campaign.cost) }}</td>
-                                    <td>{{ moneyOrDash(campaign.CostPerParticipatedInAppAction) }}</td>
+                                    <td>{{ formatNumber(campaign.ViewThroughConv || campaign.viewThroughConv) }}</td>
+                                    <td>{{ formatNumber(campaign.installs) }}</td>
+                                    <td>{{ formatNumber(campaign.inAppActions) }}</td>
+                                    <td>{{ formatNumber(campaign.ParticipatedInAppActions) }}</td>
+                                    <td>{{ formatCurrency(campaign.cost) }}</td>
+                                    <td>{{ formatCurrency(campaign.CostPerParticipatedInAppAction) }}</td>
                                     <td>{{ percent(campaign.ConvRate) }}</td>
-                                    <td>{{ numberOrZero(campaign.Conversions) }}</td>
-                                    <td>{{ moneyOrDash(campaign.CostPerConv) }}</td>
+                                    <td>{{ formatNumber(campaign.Conversions) }}</td>
+                                    <td>{{ formatCurrency(campaign.CostPerConv) }}</td>
                                 </tr>
                                 <tr class="total-row">
                                     <td colspan="3">Total: All campaigns in your current view</td>
@@ -800,11 +800,11 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
-                                    <td>{{ numberOrZero(totals.viewThroughConv) }}</td>
-                                    <td>{{ numberOrZero(totals.installs) }}</td>
-                                    <td>{{ numberOrZero(totals.inAppActions) }}</td>
+                                    <td>{{ formatNumber(totals.viewThroughConv) }}</td>
+                                    <td>{{ formatNumber(totals.installs) }}</td>
+                                    <td>{{ formatNumber(totals.inAppActions) }}</td>
                                     <td>-</td>
-                                    <td>{{ money(totals.cost) }}</td>
+                                    <td>{{ formatCurrency(totals.cost) }}</td>
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
@@ -993,13 +993,25 @@
                 <button type="button" @click="closePreview">Close</button>
             </section>
             <section v-if="previewModal.type === 'image'" class="ga-preview-modal image-preview">
-                <div class="ga-preview-stage">
+                <div class="ga-preview-stage" :class="{ 'ga-preview-stage--fullscreen': isPreviewFullscreen }" @click="closePreview">
                     <button class="ga-preview-close" type="button" @click="closePreview">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                     <h2>{{ previewModal.asset.source }}</h2>
+                    <button class="ga-preview-zoom" type="button" @click.stop="togglePreviewFullscreen"
+                        :title="isPreviewFullscreen ? 'Exit fullscreen' : 'Zoom'">
+                        <span class="material-symbols-outlined">
+                            {{ isPreviewFullscreen ? 'close_fullscreen' : 'open_in_full' }}
+                        </span>
+                    </button>
+                    <button class="ga-preview-arrow ga-preview-arrow-left" type="button" title="Previous">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button class="ga-preview-arrow ga-preview-arrow-right" type="button" title="Next">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
                     <img :src="previewModal.asset.image" :alt="previewModal.asset.asset">
-                </div>
+                    </div>
                 <aside class="ga-preview-details">
                     <!-- <h2>About this asset</h2> -->
                     <div class="ga-previewModal-asset-aboutinfo-aboutinfo">

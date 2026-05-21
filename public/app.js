@@ -26,6 +26,7 @@ createApp({
             showNotification: true,
             isRefreshing: false,
             compareEnabled: false,
+            isFirstNotificationsOpen: false,
             dateRange: '2025年12月9日 - 2026年3月24日',
             pageSize: 30,
             pageSizeOptions: [10, 30, 50, 100],
@@ -744,6 +745,9 @@ createApp({
             this.currentPage = 1;
             this.showPageSizeDropdown = false;
         },
+        toggleFirstNotifications() {
+            this.isFirstNotificationsOpen = !this.isFirstNotificationsOpen
+        }
     },
     async mounted() {
         await this.loadTableData();

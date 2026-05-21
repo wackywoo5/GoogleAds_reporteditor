@@ -417,9 +417,9 @@ body {
 
 .notification-badge {
     position: absolute;
-    top: -4px;
-    right: 26px;
-    background-color: #b72319;
+    top: 4px;
+    right: 27px;
+    background-color: #d93025;
     color: white;
     font-size: 14px;
     font-weight: 500;
@@ -2306,6 +2306,155 @@ body.is-column-resizing * {
     color: #1a73e8;
     text-decoration: none;
 }
+
+.first-notifications-transition-popup-enter-active{
+    transition:
+        opacity 0.01s linear,
+        transform 0.01s linear;
+        /* opacity 1.0s cubic-bezier(0.2, 0, 0, 1), */
+        /* transform 0.01s cubic-bezier(0.2, 0, 0, 1); */
+}
+.first-notifications-transition-popup-leave-active {
+    transition:
+        opacity 0.2s ease-in,
+        transform 0.2s ease-in;
+        /* opacity 0.35s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.35s cubic-bezier(0.2, 0, 0, 1); */
+}
+.first-notifications-transition-popup-enter-from,
+.first-notifications-transition-popup-leave-to {
+
+    opacity: 0;
+
+    transform:
+        scale(0.2);
+}
+.first-notifications-transition-popup-enter-to,
+.first-notifications-transition-popup-leave-from {
+
+    opacity: 1;
+
+    transform:
+        scale(1);
+}
+
+.first-notifications-popup {
+
+    position: absolute;
+
+    top: 72px;
+    right: 260px;
+
+    width: 400px;
+
+    background: white;
+
+    border-radius: 4px;
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.2),
+        0 8px 24px rgba(0,0,0,.15);
+
+    overflow: hidden;
+
+    transform-origin: top right;
+
+    z-index: 9999;
+}
+
+.first-notifications-header {
+
+    padding: 16px 16px;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    border-bottom: 1px solid #e0e0e0;
+}
+.first-notification-item {
+
+    display: flex;
+
+    gap: 10px;
+
+    padding: 18px;
+
+    border-bottom: 1px solid #e0e0e0;
+}
+.first-notification-icon {
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+}
+.first-notification-icon.error {
+
+    border: 2px solid #d93025;
+
+    color: #d93025;
+}
+.first-notification-icon.warn {
+
+    border: 2px solid #1a73e8;
+
+    color: #1a73e8;
+}
+.first-notification-content h4 {
+
+    margin: 0 0 8px;
+
+    font-size: 15px;
+    font-weight: 600;
+}
+.first-notification-content p {
+
+    margin: 0 0 6px;
+    color: #5f6368;
+    font-size: 13px;
+}
+.first-view-btn {
+
+    background: #1a73e8;
+    color: white;
+
+    border: none;
+
+    border-radius: 4px;
+
+    padding: 8px 16px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+/* 文字按钮，只有文字没有背景 */
+.first-text-btn {
+
+    background: transparent;
+    color: #1a73e8;
+
+    border: none;
+
+    border-radius: 4px;
+
+    margin-left: -4px;
+
+    padding: 8px 4px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
 /* ========== 数据分析界面样式 ========== */
 .analytics-interface {
     margin-top: 20px;
@@ -2315,7 +2464,7 @@ body.is-column-resizing * {
 .analytics-container {
     display: flex;
     background-color: #f3f4f6;
-    border-top: 1px solid #dadce0;   
+    border-top: 1px solid #dadce0;
     overflow: hidden;
 }
 
@@ -2390,7 +2539,7 @@ body.is-column-resizing * {
     width: 100%;
     box-sizing: border-box;
     margin-left: 4px;
-   
+
 }
 
 
@@ -2416,7 +2565,7 @@ body.is-column-resizing * {
 .analytics-search-bar-inner {
     display: flex;
     align-items: center;
-    
+
 }
 
 .analytics-search-bar-inner .material-symbols-outlined {
