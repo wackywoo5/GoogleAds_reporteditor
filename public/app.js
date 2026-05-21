@@ -22,7 +22,7 @@ createApp({
         }
 
         return {
-            showRightPanel: false,
+            showRightPanel: true,
             showNotification: true,
             isRefreshing: false,
             compareEnabled: false,
