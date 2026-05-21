@@ -830,7 +830,7 @@ createApp({
             if (!this.draftStartDate) return;
             const selectedDayElement = document.querySelector('.date-picker-dropdown .calendar-day.selected');
             if (selectedDayElement) {
-                selectedDayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                selectedDayElement.scrollIntoView({ behavior: 'auto', block: 'center' });
             }
         },
         handleClickOutside(event) {

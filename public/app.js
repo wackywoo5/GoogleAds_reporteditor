@@ -391,7 +391,7 @@ createApp({
             const selectedDayElement = document.querySelector('.calendar-day.selected');
             if (selectedDayElement) {
                 selectedDayElement.scrollIntoView({
-                    behavior: 'smooth',
+                    behavior: 'auto',
                     block: 'center'
                 });
             }
@@ -517,7 +517,6 @@ createApp({
             });
         },
         selectCalendarDate(date) {
-            let shouldApplyCustomRange = false;
             if (this.selectingStartDate || !this.draftStartDate) {
                 this.draftStartDate = new Date(date);
                 this.draftEndDate = null;
@@ -530,13 +529,9 @@ createApp({
                     this.draftEndDate = new Date(date);
                 }
                 this.selectingStartDate = true;
-                shouldApplyCustomRange = true;
             }
             this.selectedDateOption = 'custom';
             this.calendarMonth = new Date(date);
-            if (shouldApplyCustomRange) {
-                return this.applyDateRange();
-            }
         },
         selectStartDate() {
             this.selectingStartDate = true;
