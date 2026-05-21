@@ -288,8 +288,8 @@ createApp({
         metricCards() {
             if (this.pageMode === 'adgroups') {
                 return [
-                    { label: 'Cost', value: this.money(this.selectedCost), delta: this.randomizedMetricDelta('adgroups-cost', this.selectedCost, 'money') },
-                    { label: 'Conversions', value: this.fixed(this.selectedConversions, 2), delta: this.randomizedMetricDelta('adgroups-conversions', this.selectedConversions, 'fixed') }
+                    { label: 'Conversions', value: this.fixed(this.selectedConversions, 2), delta: this.randomizedMetricDelta('adgroups-conversions', this.selectedConversions, 'fixed') },
+                    { label: 'Cost', value: this.money(this.selectedCost), delta: this.randomizedMetricDelta('adgroups-cost', this.selectedCost, 'money') }
                 ];
             }
 

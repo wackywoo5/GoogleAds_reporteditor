@@ -118,6 +118,30 @@ test('report editor refresh state is scoped to the table only', () => {
   assert.doesNotMatch(styles, /refresh-below-reveal/);
 });
 
+test('refreshing report editor opens the generate report side panel', async () => {
+  const { config, sandbox } = loadReportEditorAppConfig();
+  const context = {
+    ...config.data(),
+    ...config.methods,
+    $nextTick() {
+      return Promise.resolve();
+    },
+    showRightPanel: false,
+    showDatePicker: true
+  };
+
+  const refreshPromise = config.methods.refreshPage.call(context);
+  await Promise.resolve();
+  await Promise.resolve();
+  await new Promise(resolve => setImmediate(resolve));
+
+  assert.equal(context.showRightPanel, true);
+  assert.equal(context.showDatePicker, false);
+
+  sandbox.pendingTimeout();
+  await refreshPromise;
+});
+
 test('applying a report editor date range shows the table loading state while data reloads', async () => {
   const { config, sandbox } = loadReportEditorAppConfig();
   const context = {
@@ -198,4 +222,40 @@ test('selecting a complete custom date range applies and reloads data without pr
     config.computed.filteredCampaigns.call(context).map(campaign => campaign.campaign),
     ['Campaign refreshed']
   );
+});
+
+test('selecting a preset date range applies and reloads data without pressing Apply', async () => {
+  const { config, sandbox } = loadReportEditorAppConfig();
+  const context = {
+    ...config.data(),
+    ...config.methods,
+    $nextTick() {
+      return Promise.resolve();
+    },
+    selectedDateOption: 'custom',
+    appliedDateOption: 'custom',
+    showDatePicker: true,
+    showPageSizeDropdown: true,
+    currentPage: 2
+  };
+
+  const selectPromise = config.methods.selectDateOption.call(context, 'yesterday');
+  await Promise.resolve();
+  await Promise.resolve();
+  await new Promise(resolve => setImmediate(resolve));
+
+  assert.equal(context.selectedDateOption, 'yesterday');
+  assert.equal(context.appliedDateOption, 'yesterday');
+  assert.equal(context.showDatePicker, false);
+  assert.equal(context.isRefreshing, true);
+  assert.equal(context.currentPage, 1);
+  assert.equal(sandbox.fetchCount, 1);
+  assert.equal(context.formatDate(context.startDate), context.formatDate(context.draftStartDate));
+  assert.equal(context.formatDate(context.endDate), context.formatDate(context.draftEndDate));
+
+  sandbox.pendingTimeout();
+  await selectPromise;
+
+  assert.equal(context.isRefreshing, false);
+  assert.equal(context.campaigns[0].campaign, 'Campaign refreshed');
 });

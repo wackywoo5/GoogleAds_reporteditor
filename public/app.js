@@ -406,7 +406,7 @@ createApp({
                 }
             }
         },
-        selectDateOption(option) {
+        selectDateOption(option, options = {}) {
             this.selectedDateOption = option;
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -508,6 +508,9 @@ createApp({
             }
             if (this.draftStartDate) {
                 this.calendarMonth = new Date(this.draftStartDate);
+            }
+            if (option !== 'custom' && !options.skipApply) {
+                return this.applyDateRange();
             }
             this.$nextTick(() => {
                 this.scrollToSelectedDate();
@@ -735,6 +738,7 @@ createApp({
         },
         async refreshPage() {
             this.showDatePicker = false;
+            this.showRightPanel = true;
             await this.runReportDataLoad();
         },
         togglePageSizeDropdown() {
@@ -748,7 +752,7 @@ createApp({
     },
     async mounted() {
         await this.loadTableData();
-        this.selectDateOption('yesterday');
+        this.selectDateOption('yesterday', { skipApply: true });
         this.applyDateRange({ skipRefresh: true });
         document.addEventListener('click', this.handleClickOutside);
     },
