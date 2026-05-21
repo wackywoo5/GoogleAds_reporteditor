@@ -104,6 +104,7 @@ createApp({
             selectingStartDate: true,
             previewModal: null,
             isPreviewDetailsExpanded: true,
+            isPreviewFullscreen: false,
             isContextBarHidden: false,
             ads_isCampaignOpen: true,
             ads_isInsightsReportsOpen: true,
@@ -288,23 +289,23 @@ createApp({
         metricCards() {
             if (this.pageMode === 'adgroups') {
                 return [
-                    { label: 'Conversions', value: this.fixed(this.selectedConversions, 2), delta: this.randomizedMetricDelta('adgroups-conversions', this.selectedConversions, 'fixed') },
-                    { label: 'Cost', value: this.money(this.selectedCost), delta: this.randomizedMetricDelta('adgroups-cost', this.selectedCost, 'money') }
+                    { label: 'Conversions', value: this.formatNumber(this.selectedConversions, 2), delta: this.randomizedMetricDelta('adgroups-conversions', this.selectedConversions, 'fixed') },
+                    { label: 'Cost', value: this.formatCurrency(this.selectedCost), delta: this.randomizedMetricDelta('adgroups-cost',  this.selectedCost, 'money') }
                 ];
             }
 
             if (this.isRefreshing) {
                 return [
                     { label: 'Avg. target CPA', value: '-', delta: '-' },
-                    { label: 'Cost', value: this.money(this.totals.cost), delta: this.randomizedMetricDelta('campaigns-cost', this.totals.cost, 'money') },
-                    { label: 'Conversions', value: this.fixed(this.totals.conversions, 2), delta: this.randomizedMetricDelta('campaigns-conversions', this.totals.conversions, 'fixed') }
+                    { label: 'Cost', value: this.formatCurrency(this.totals.cost), delta: this.randomizedMetricDelta('campaigns-cost',  this.totals.cost, 'money') },
+                    { label: 'Conversions', value: this.formatNumber(this.totals.conversions, 2), delta: this.randomizedMetricDelta('campaigns-conversions', this.totals.conversions, 2, 'fixed') }
                 ];
             }
 
             return [
-                { label: 'Conversions', value: this.fixed(this.totals.conversions, 2), delta: this.randomizedMetricDelta('campaigns-conversions', this.totals.conversions, 'fixed') },
-                { label: 'Impr.', value: this.metricInteger(this.totals.impressions), delta: this.randomizedMetricDelta('campaigns-impressions', this.totals.impressions, 'integer') },
-                { label: 'Cost', value: this.money(this.totals.cost), delta: this.randomizedMetricDelta('campaigns-cost', this.totals.cost, 'money') },
+                { label: 'Conversions', value: this.formatNumber(this.totals.conversions, 2), delta: this.randomizedMetricDelta('campaigns-conversions', this.totals.conversions, 'fixed') },
+                { label: 'Impr.', value: this.formatNumber(this.totals.impressions), delta: this.randomizedMetricDelta('campaigns-impressions', this.totals.impressions, 'integer') },
+                { label: 'Cost', value: this.formatCurrency(this.totals.cost), delta: this.randomizedMetricDelta('campaigns-cost',  this.totals.cost, 'money') },
                 { label: 'Avg. target CPA', value: '-', delta: '-' }
             ];
         },
@@ -1263,9 +1264,9 @@ createApp({
             if (!number) return format === 'money' ? '$0.00' : '0';
 
             const delta = number * this.metricDeltaRatio(key, number);
-            if (format === 'money') return this.money(delta);
-            if (format === 'integer') return this.metricInteger(delta);
-            return this.fixed(delta, 2);
+            if (format === 'money') return this.formatCurrency(delta);
+            if (format === 'integer') return this.formatNumber(delta);
+            return this.formatNumber(delta, 2);
         },
         numberOrZero(value) {
             const number = safeNumber(value);
@@ -1291,9 +1292,14 @@ createApp({
         openImagePreview(asset) {
             this.previewModal = { type: 'image', asset };
             this.isPreviewDetailsExpanded = true;
+            this.isPreviewFullscreen = false;
         },
         closePreview() {
             this.previewModal = null;
+            this.isPreviewFullscreen = false;
+        },
+        togglePreviewFullscreen() {
+            this.isPreviewFullscreen = !this.isPreviewFullscreen;
         },
         togglePreviewDetails() {
             this.isPreviewDetailsExpanded = !this.isPreviewDetailsExpanded;
