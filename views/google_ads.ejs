@@ -116,7 +116,6 @@
                     <span>{{ account.phone }} {{ account.id }}</span>
                     <small>{{ account.name }}</small>
                 </div>
-                <div class="ga-avatar">伟全</div>
             </div>
         </header>
 
@@ -326,67 +325,67 @@
 
                                         <div class="date-options">
                                             <div class="date-option" :class="{ active: selectedDateOption === 'today' }"
-                                                @click="selectDateOption('today')">
+                                                @click="applyQuickDateOption('today')">
                                                 Today
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'yesterday' }"
-                                                @click="selectDateOption('yesterday')">
+                                                @click="applyQuickDateOption('yesterday')">
                                                 Yesterday
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'thisWeekSunSat' }"
-                                                @click="selectDateOption('thisWeekSunSat')">
+                                                @click="applyQuickDateOption('thisWeekSunSat')">
                                                 This week (Sun - Today)
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'thisWeekMonSun' }"
-                                                @click="selectDateOption('thisWeekMonSun')">
+                                                @click="applyQuickDateOption('thisWeekMonSun')">
                                                 This week (Mon - Today)
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'last7Days' }"
-                                                @click="selectDateOption('last7Days')">
+                                                @click="applyQuickDateOption('last7Days')">
                                                 Last 7 days (up to yesterday)
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'lastWeekSunSat' }"
-                                                @click="selectDateOption('lastWeekSunSat')">
+                                                @click="applyQuickDateOption('lastWeekSunSat')">
                                                 Last week (Sun - Sat)
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'lastWeekMonSun' }"
-                                                @click="selectDateOption('lastWeekMonSun')">
+                                                @click="applyQuickDateOption('lastWeekMonSun')">
                                                 Last week (Mon - Sun)
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'lastBusinessWeek' }"
-                                                @click="selectDateOption('lastBusinessWeek')">
+                                                @click="applyQuickDateOption('lastBusinessWeek')">
                                                 Last business week (Mon - Fri)
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'last14Days' }"
-                                                @click="selectDateOption('last14Days')">
+                                                @click="applyQuickDateOption('last14Days')">
                                                 Last 14 days (up to yesterday)
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'thisMonth' }"
-                                                @click="selectDateOption('thisMonth')">
+                                                @click="applyQuickDateOption('thisMonth')">
                                                 This month
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'last30Days' }"
-                                                @click="selectDateOption('last30Days')">
+                                                @click="applyQuickDateOption('last30Days')">
                                                 Last 30 days
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'lastMonth' }"
-                                                @click="selectDateOption('lastMonth')">
+                                                @click="applyQuickDateOption('lastMonth')">
                                                 Last month
                                             </div>
                                             <div class="date-option"
                                                 :class="{ active: selectedDateOption === 'allTime' }"
-                                                @click="selectDateOption('allTime')">
+                                                @click="applyQuickDateOption('allTime')">
                                                 All time
                                             </div>
                                         </div>

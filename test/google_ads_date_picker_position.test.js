@@ -16,7 +16,7 @@ function createMemoryStorage() {
   };
 }
 
-function loadGoogleAdsAppConfig() {
+function loadGoogleAdsAppConfig(overrides = {}) {
   const code = fs.readFileSync(path.join(__dirname, '..', 'public', 'google_ads.js'), 'utf8');
   const sandbox = {
     console,
@@ -24,8 +24,15 @@ function loadGoogleAdsAppConfig() {
     URLSearchParams,
     localStorage: createMemoryStorage(),
     sessionStorage: createMemoryStorage(),
-    document: {
-      querySelector() {
+    document: overrides.document || {
+      querySelector(selector) {
+        if (selector === '.ga-table-panel') {
+          return {
+            getBoundingClientRect() {
+              return { top: 200 };
+            }
+          };
+        }
         return { scrollTop: 72 };
       }
     },
@@ -86,4 +93,67 @@ test('open date picker repositions when the campaign page scrolls', () => {
   config.methods.handleScroll.call(context);
   assert.equal(context.isContextBarHidden, true);
   assert.ok(context.datePickerPositionTick > 0);
+});
+
+test('opening and changing the date picker jumps to selected date without smooth scrolling', () => {
+  const scrollIntoViewCalls = [];
+  const config = loadGoogleAdsAppConfig({
+    document: {
+      querySelector(selector) {
+        if (selector === '.date-picker-dropdown .calendar-day.selected') {
+          return {
+            scrollIntoView(options) {
+              scrollIntoViewCalls.push(options);
+            }
+          };
+        }
+        return { scrollTop: 0 };
+      }
+    }
+  });
+  const context = {
+    ...config.data(),
+    ...config.methods,
+    startDate: new Date(2026, 4, 20),
+    endDate: new Date(2026, 4, 20),
+    appliedDateOption: 'custom',
+    $nextTick(callback) {
+      callback();
+    },
+    $refs: {
+      dateSelectRef: {}
+    }
+  };
+
+  config.methods.toggleDatePicker.call(context, { stopPropagation() {} });
+  config.methods.selectDateOption.call(context, 'custom');
+
+  assert.equal(scrollIntoViewCalls.length, 2);
+  assert.ok(scrollIntoViewCalls.every(call => call.behavior === 'auto'));
+  assert.ok(scrollIntoViewCalls.every(call => call.block === 'center'));
+});
+
+test('left preset date options apply immediately while custom keeps Apply flow', () => {
+  const template = fs.readFileSync(path.join(__dirname, '..', 'views', 'google_ads.ejs'), 'utf8');
+  const quickOptions = [
+    'today',
+    'yesterday',
+    'thisWeekSunSat',
+    'thisWeekMonSun',
+    'last7Days',
+    'lastWeekSunSat',
+    'lastWeekMonSun',
+    'lastBusinessWeek',
+    'last14Days',
+    'thisMonth',
+    'last30Days',
+    'lastMonth',
+    'allTime'
+  ];
+
+  assert.match(template, /@click="selectDateOption\('custom'\)"/);
+  for (const option of quickOptions) {
+    assert.match(template, new RegExp(`@click="applyQuickDateOption\\('${option}'\\)"`));
+    assert.doesNotMatch(template, new RegExp(`@click="selectDateOption\\('${option}'\\)"`));
+  }
 });

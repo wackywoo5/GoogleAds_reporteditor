@@ -142,6 +142,42 @@ test('refreshing report editor opens the generate report side panel', async () =
   await refreshPromise;
 });
 
+test('opening and changing the report editor date picker jumps to selected date without smooth scrolling', () => {
+  const { config, sandbox } = loadReportEditorAppConfig();
+  const scrollIntoViewCalls = [];
+  sandbox.document.querySelector = selector => {
+    if (selector === '.calendar-months-scroll') return { scrollTop: 0 };
+    if (selector === '.calendar-day.selected') {
+      return {
+        scrollIntoView(options) {
+          scrollIntoViewCalls.push(options);
+        }
+      };
+    }
+    return null;
+  };
+  const context = {
+    ...config.data(),
+    ...config.methods,
+    startDate: new Date(2026, 4, 20),
+    endDate: new Date(2026, 4, 20),
+    appliedDateOption: 'custom',
+    $nextTick(callback) {
+      callback();
+    },
+    $refs: {
+      dateSelectRef: {}
+    }
+  };
+
+  config.methods.toggleDatePicker.call(context, { stopPropagation() {} });
+  config.methods.selectDateOption.call(context, 'custom', { skipApply: true });
+
+  assert.equal(scrollIntoViewCalls.length, 2);
+  assert.ok(scrollIntoViewCalls.every(call => call.behavior === 'auto'));
+  assert.ok(scrollIntoViewCalls.every(call => call.block === 'center'));
+});
+
 test('applying a report editor date range shows the table loading state while data reloads', async () => {
   const { config, sandbox } = loadReportEditorAppConfig();
   const context = {
@@ -181,7 +217,7 @@ test('applying a report editor date range shows the table loading state while da
   );
 });
 
-test('selecting a complete custom date range applies and reloads data without pressing Apply', async () => {
+test('selecting a complete custom date range waits for Apply before reloading data', async () => {
   const { config, sandbox } = loadReportEditorAppConfig();
   const context = {
     ...config.data(),
@@ -199,29 +235,21 @@ test('selecting a complete custom date range applies and reloads data without pr
     selectingStartDate: false
   };
 
-  const selectPromise = config.methods.selectCalendarDate.call(context, new Date(2026, 4, 19));
+  config.methods.selectCalendarDate.call(context, new Date(2026, 4, 19));
   await Promise.resolve();
   await Promise.resolve();
   await new Promise(resolve => setImmediate(resolve));
 
   assert.equal(context.selectedDateOption, 'custom');
-  assert.equal(context.appliedDateOption, 'custom');
-  assert.equal(context.showDatePicker, false);
-  assert.equal(context.isRefreshing, true);
-  assert.equal(context.currentPage, 1);
-  assert.equal(sandbox.fetchCount, 1);
-  assert.equal(context.formatDate(context.startDate), 'May 13, 2026');
-  assert.equal(context.formatDate(context.endDate), 'May 19, 2026');
-
-  sandbox.pendingTimeout();
-  await selectPromise;
-
+  assert.equal(context.appliedDateOption, 'last7Days');
+  assert.equal(context.showDatePicker, true);
   assert.equal(context.isRefreshing, false);
-  assert.equal(context.campaigns[0].campaign, 'Campaign refreshed');
-  assert.deepEqual(
-    config.computed.filteredCampaigns.call(context).map(campaign => campaign.campaign),
-    ['Campaign refreshed']
-  );
+  assert.equal(context.currentPage, 2);
+  assert.equal(sandbox.fetchCount, 0);
+  assert.equal(context.startDate, null);
+  assert.equal(context.endDate, null);
+  assert.equal(context.formatDate(context.draftStartDate), 'May 13, 2026');
+  assert.equal(context.formatDate(context.draftEndDate), 'May 19, 2026');
 });
 
 test('selecting a preset date range applies and reloads data without pressing Apply', async () => {
