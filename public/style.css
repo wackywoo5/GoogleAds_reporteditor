@@ -1541,19 +1541,15 @@ input:checked+.toggle-slider:before {
     font-weight: 400;
 }
 
-.data-table.is-reloading tbody td.col-metric,
-.data-table.is-reloading tbody td.col-campaign-id,
-.data-table.is-reloading tfoot td.col-metric {
-    position: relative;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent;
-    text-shadow: none;
+
+.data-table.is-reloading tbody,
+.data-table.is-reloading tfoot {
+    opacity: 0.45;
 }
 
 .data-table.is-reloading tbody td:first-child {
     position: relative;
     color: transparent;
-    text-decoration: none;
 }
 
 .data-table.is-reloading tbody td:first-child::after {
@@ -1561,48 +1557,13 @@ input:checked+.toggle-slider:before {
     position: absolute;
     top: 50%;
     left: 16px;
-    width: min(260px, calc(100% - 32px));
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, #e8eaed 0%, #f8fafd 45%, #e8eaed 100%);
-    background-size: 180% 100%;
+    width: 60px;
+    height: 20px;
+    border-radius: 3px;
+    background: #dadce0;
     transform: translateY(-50%);
-    animation: metric-loading 0.9s ease-in-out infinite;
 }
 
-.data-table.is-reloading tbody td.col-campaign-id::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 16px;
-    width: min(120px, calc(100% - 32px));
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, #e8eaed 0%, #f8fafd 45%, #e8eaed 100%);
-    background-size: 180% 100%;
-    transform: translateY(-50%);
-    animation: metric-loading 0.9s ease-in-out infinite;
-}
-
-.data-table.is-reloading tbody td.col-metric::after,
-.data-table.is-reloading tfoot td.col-metric::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 16px;
-    width: 58px;
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, #e8eaed 0%, #f8fafd 45%, #e8eaed 100%);
-    background-size: 180% 100%;
-    transform: translateY(-50%);
-    animation: metric-loading 0.9s ease-in-out infinite;
-}
-
-.data-table.is-reloading tfoot td.col-metric::after {
-    background: linear-gradient(90deg, #dadce0 0%, #f1f3f4 45%, #dadce0 100%);
-    background-size: 180% 100%;
-}
 
 .data-table th span {
     margin-right: 0px;

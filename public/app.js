@@ -1177,6 +1177,9 @@ createApp({
             this.showFilterValueModal = false;
         },
         applyFilterValue() {
+            setTimeout(() => {
+            this.runReportDataLoad();
+            }, 0.5);
             if (this.filterValueInput) {
                 this.campaignNameFilter = this.filterValueInput;
                 this.isFilterTagFocused = true; // 标签处于选中状态
