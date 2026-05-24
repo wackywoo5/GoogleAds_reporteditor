@@ -297,6 +297,8 @@ test('campaigns table freezes the toolbar header rows and left campaign columns'
   assert.match(styles, /\.ga-data-table\.campaigns th\.select-col,[\s\S]*?left:\s*0;/);
   assert.match(styles, /\.ga-data-table\.campaigns th\.state-col,[\s\S]*?left:\s*var\(--ga-campaign-select-col-width\);/);
   assert.match(styles, /\.ga-data-table\.campaigns th\.name-col,[\s\S]*?left:\s*calc\(var\(--ga-campaign-select-col-width\) \+ var\(--ga-campaign-state-col-width\)\);/);
+  assert.match(template, /class="state-col"\s*:class="\{ 'status-menu-open': dropdown === statusDropdownName\(campaign\.id \|\| index\) \}"/);
+  assert.match(styles, /\.ga-data-table\.campaigns td\.state-col\.status-menu-open\s*\{[^}]*z-index:\s*70;/s);
   assert.doesNotMatch(styles, /\.ga-data-table\.campaigns\s+\.draft-row td\s*\{[^}]*top:\s*74px;/s);
   assert.match(script, /mainElement\.style\.setProperty\('--ga-main-scroll-left',\s*`\$\{mainElement\.scrollLeft\}px`\);/);
 });

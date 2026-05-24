@@ -961,13 +961,17 @@
     position: sticky;
     top: 0;
     background: #eef0f1;
-    z-index: 40;
+    z-index: 60;
 }
 
 .ga-page-head--adassets {
     min-height: 56px;
     align-items: center;
     padding-top: 12px;
+}
+
+.ga-page-head--date-open {
+    z-index: 80;
 }
 
 .ga-page-head-heading {
@@ -2386,6 +2390,10 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     z-index: 22;
     background: #fff;
     box-shadow: 1px 0 0 #dadce0;
+}
+
+.ga-data-table.campaigns td.state-col.status-menu-open {
+    z-index: 70;
 }
 
 .ga-data-table.campaigns thead th.select-col,

@@ -323,7 +323,8 @@
                     </div>
                 </section>
 
-                <section class="ga-page-head" :class="{ 'ga-page-head--adassets': pageMode === 'adassets' }">
+                <section class="ga-page-head"
+                    :class="{ 'ga-page-head--adassets': pageMode === 'adassets', 'ga-page-head--date-open': showDatePicker }">
                     <div class="ga-page-head-heading">
                         <h1>{{ pageTitle }}</h1>
                         <div v-if="isContextBarHidden && (pageMode === 'campaigns' || pageMode === 'adassets' || pageMode === 'reporteditor' || pageMode === 'overview')" class="ga-page-head-selector-wrapper">
@@ -1114,7 +1115,8 @@
                                 </tr>
                                 <tr v-for="(campaign, index) in paginatedCampaignRows" :key="campaign.id || index" :class="{ 'ga-hidden-row': isTableLoading }">
                                     <td class="select-col"><span class="ga-checkbox"></span></td>
-                                    <td class="state-col">
+                                    <td class="state-col"
+                                        :class="{ 'status-menu-open': dropdown === statusDropdownName(campaign.id || index) }">
                                         <div class="ga-status-cell"
                                             :class="{ open: dropdown === statusDropdownName(campaign.id || index) }"
                                             @click.stop>

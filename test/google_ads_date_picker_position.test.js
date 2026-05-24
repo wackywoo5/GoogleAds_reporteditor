@@ -33,7 +33,13 @@ function loadGoogleAdsAppConfig(overrides = {}) {
             }
           };
         }
-        return { scrollTop: 72 };
+        return {
+          scrollTop: 72,
+          scrollLeft: 0,
+          style: {
+            setProperty() {}
+          }
+        };
       }
     },
     window: {
@@ -66,6 +72,8 @@ function loadGoogleAdsAppConfig(overrides = {}) {
 }
 
 test('open date picker repositions when the campaign page scrolls', () => {
+  const template = fs.readFileSync(path.join(__dirname, '..', 'views', 'google_ads.ejs'), 'utf8');
+  const styles = fs.readFileSync(path.join(__dirname, '..', 'public', 'google_ads.css'), 'utf8');
   const config = loadGoogleAdsAppConfig();
   const dateButtonRect = { bottom: 220, left: 700 };
   const context = {
@@ -93,6 +101,9 @@ test('open date picker repositions when the campaign page scrolls', () => {
   config.methods.handleScroll.call(context);
   assert.equal(context.isContextBarHidden, true);
   assert.ok(context.datePickerPositionTick > 0);
+  assert.match(template, /'ga-page-head--date-open':\s*showDatePicker/);
+  assert.match(styles, /\.ga-page-head\s*\{[^}]*z-index:\s*60;/s);
+  assert.match(styles, /\.ga-page-head--date-open\s*\{[^}]*z-index:\s*80;/s);
 });
 
 test('opening and changing the date picker jumps to selected date without smooth scrolling', () => {
