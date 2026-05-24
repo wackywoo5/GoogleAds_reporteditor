@@ -65,14 +65,14 @@ test('campaign and ad group pages render conversions as a dot chart with a left 
   assert.match(template, /\{\{\s*conversionsChartLabels\.max\s*\}\}/);
   assert.match(template, /\{\{\s*conversionsChartLabels\.mid\s*\}\}/);
   assert.match(template, /\{\{\s*conversionsChartLabels\.min\s*\}\}/);
-  assert.match(template, /<circle\s+:cx="conversionsChartPoint\.x"\s+:cy="conversionsChartPoint\.y"\s+r="4"\s+class="ga-chart-point"/);
+  assert.match(template, /class="ga-chart-point-marker"\s+:style="conversionsChartPointMarkerStyle"/);
   assert.match(template, /class="ga-chart-point-hitarea"/);
   assert.match(template, /v-if="conversionsChartTooltip\.visible"\s+class="ga-chart-tooltip"/);
   assert.match(template, /@mouseenter="showConversionsChartTooltip"/);
   assert.match(template, /@mouseleave="hideConversionsChartTooltip"/);
   assert.match(template, /@blur="hideConversionsChartTooltip"/);
   assert.match(styles, /\.ga-conversions-dot-chart\s+\.ga-chart-label\s*\{[^}]*text-anchor:\s*end;/s);
-  assert.match(styles, /\.ga-chart-point\s*\{[^}]*fill:\s*#1a73e8;/s);
+  assert.match(styles, /\.ga-chart-point-marker\s*\{[^}]*width:\s*8px;[^}]*height:\s*8px;[^}]*border-radius:\s*50%;/s);
   assert.match(styles, /\.ga-chart-point-hitarea\s*\{[^}]*fill:\s*transparent;/s);
   assert.match(styles, /\.ga-chart-tooltip\s*\{[^}]*position:\s*absolute;/s);
   assert.match(styles, /\.ga-chart-hover-line\s*\{[^}]*stroke-dasharray:\s*2 2;/s);

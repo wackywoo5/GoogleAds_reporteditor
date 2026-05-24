@@ -324,8 +324,8 @@ createApp({
 
             return [
                 { label: 'Conversions', value: this.formatNumber(this.totals.conversions, 2), delta: this.randomizedMetricDelta('campaigns-conversions', this.totals.conversions, 'fixed') },
-                { label: 'Impr.', value: this.formatNumber(this.totals.impressions), delta: this.randomizedMetricDelta('campaigns-impressions', this.totals.impressions, 'integer') },
                 { label: 'Cost', value: this.formatCurrency(this.totals.cost), delta: this.randomizedMetricDelta('campaigns-cost',  this.totals.cost, 'money') },
+                { label: 'Impr.', value: this.formatNumber(this.totals.impressions), delta: this.randomizedMetricDelta('campaigns-impressions', this.totals.impressions, 'integer') },
                 { label: 'Avg. target CPA', value: '—', delta: '-' }
             ];
         },
@@ -356,6 +356,14 @@ createApp({
             return {
                 x: 555,
                 y: bottom - ratio * (bottom - top)
+            };
+        },
+        conversionsChartPointMarkerStyle() {
+            const xRatio = this.conversionsChartPoint.x / 1000;
+            const yRatio = this.conversionsChartPoint.y / 180;
+            return {
+                left: `calc(${xRatio * 100}% + ${36 - (72 * xRatio)}px)`,
+                top: `${18 + (yRatio * 170)}px`
             };
         },
         conversionsChartTooltipStyle() {
@@ -398,6 +406,14 @@ createApp({
             return {
                 x: 555,
                 y: bottom - ratio * (bottom - top)
+            };
+        },
+        assetChartPointMarkerStyle() {
+            const xRatio = this.assetChartPoint.x / 1000;
+            const yRatio = this.assetChartPoint.y / 180;
+            return {
+                left: `calc(${xRatio * 100}% + ${18 - (38 * xRatio)}px)`,
+                top: `${28 + (yRatio * 168)}px`
             };
         },
         assetChartTooltipStyle() {

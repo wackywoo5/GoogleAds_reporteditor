@@ -840,15 +840,13 @@
                         <line x1="78" y1="152" x2="970" y2="152"></line>
                         <line v-if="assetChartTooltip.visible" :x1="assetChartPoint.x"
                             :x2="assetChartPoint.x" y1="30" y2="154" class="ga-chart-hover-line"></line>
-                        <circle :cx="assetChartPoint.x" :cy="assetChartPoint.y" r="4"
-                            class="ga-asset-chart-point" @mouseenter="showAssetChartTooltip"
-                            @mouseleave="hideAssetChartTooltip" @focus="showAssetChartTooltip"
-                            @blur="hideAssetChartTooltip" tabindex="0"></circle>
                         <circle :cx="assetChartPoint.x" :cy="assetChartPoint.y" r="16"
                             class="ga-asset-chart-point-hitarea" @mouseenter="showAssetChartTooltip"
                             @mouseleave="hideAssetChartTooltip" @focus="showAssetChartTooltip"
                             @blur="hideAssetChartTooltip" tabindex="0" aria-label="Show asset conversions data"></circle>
                     </svg>
+                    <span class="ga-asset-chart-point-marker" :style="assetChartPointMarkerStyle"
+                        aria-hidden="true"></span>
                     <div v-if="assetChartTooltip.visible" class="ga-chart-tooltip ga-asset-chart-tooltip"
                         :style="assetChartTooltipStyle">
                         <div class="ga-chart-tooltip-date">{{ assetChartTooltipDate }}</div>
@@ -873,15 +871,13 @@
                         <text x="58" y="158" class="ga-chart-label">{{ conversionsChartLabels.min }}</text>
                         <line v-if="conversionsChartTooltip.visible" :x1="conversionsChartPoint.x"
                             :x2="conversionsChartPoint.x" y1="30" y2="154" class="ga-chart-hover-line"></line>
-                        <circle :cx="conversionsChartPoint.x" :cy="conversionsChartPoint.y" r="4"
-                            class="ga-chart-point" @mouseenter="showConversionsChartTooltip"
-                            @mouseleave="hideConversionsChartTooltip" @focus="showConversionsChartTooltip"
-                            @blur="hideConversionsChartTooltip" tabindex="0"></circle>
                         <circle :cx="conversionsChartPoint.x" :cy="conversionsChartPoint.y" r="16"
                             class="ga-chart-point-hitarea" @mouseenter="showConversionsChartTooltip"
                             @mouseleave="hideConversionsChartTooltip" @focus="showConversionsChartTooltip"
                             @blur="hideConversionsChartTooltip" tabindex="0" aria-label="Show conversions data"></circle>
                     </svg>
+                    <span class="ga-chart-point-marker" :style="conversionsChartPointMarkerStyle"
+                        aria-hidden="true"></span>
                     <div v-if="conversionsChartTooltip.visible" class="ga-chart-tooltip"
                         :style="conversionsChartTooltipStyle">
                         <div class="ga-chart-tooltip-date">{{ conversionsChartTooltipDate }}</div>

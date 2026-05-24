@@ -1142,7 +1142,7 @@
     width: 220px;
     align-self: stretch;
     border-right: 1px solid #dadce0;
-    padding: 22px 28px;
+    padding: 18px 28px 14px;
 }
 
 .ga-metric-card.primary {
@@ -1156,20 +1156,38 @@
 }
 
 .ga-metric-card span {
-    font-size: 16px;
+    color: #3c4043;
+    font-size: 14px;
+    line-height: 20px;
 }
 
 .ga-metric-card strong {
     display: block;
-    font-size: 38px;
+    width: max-content;
+    color: #3c4043;
+    border-bottom: 1px dashed #bdc1c6;
+    padding-bottom: 3px;
+    font-size: 34px;
     font-weight: 300;
-    line-height: 46px;
+    line-height: 40px;
     margin-top: 4px;
 }
 
 .ga-metric-card small {
-    font-size: 15px;
+    color: #5f6368;
+    font-size: 14px;
+    line-height: 20px;
     margin-top: 2px;
+}
+
+.ga-metric-card.primary span,
+.ga-metric-card.primary strong,
+.ga-metric-card.primary small {
+    color: #fff;
+}
+
+.ga-metric-card.primary strong {
+    border-bottom-color: rgba(255, 255, 255, 0.78);
 }
 
 .ga-metric-skeleton {
@@ -1490,6 +1508,17 @@
     cursor: pointer;
 }
 
+.ga-asset-chart-point-marker {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1a73e8;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
 .ga-asset-chart-point-hitarea {
     fill: transparent;
     stroke: transparent;
@@ -1575,6 +1604,17 @@
     stroke: #1a73e8;
     stroke-width: 1;
     cursor: pointer;
+}
+
+.ga-chart-point-marker {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1a73e8;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .ga-chart-point-hitarea {
