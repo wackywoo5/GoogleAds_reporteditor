@@ -657,7 +657,7 @@
                         <span class="filter-tag-text">{{ activeFilterTag }}</span>
                         <span v-if="showFilterTagClose" class="material-symbols-outlined filter-tag-close" @click.stop="clearActiveFilter">close</span>
                     </div>
-                    <input type="text" v-model="filterText" @input="saveFilter" @focus="openFilterDropdown" class="field" placeholder="Add">
+                    <input type="text" v-model="filterText" @input="saveFilter" @focus="openFilterDropdown" class="field" placeholder="">
                 </div>
                 <!-- Filter 选择弹框 -->
                 <transition name="filter-dropdown">
