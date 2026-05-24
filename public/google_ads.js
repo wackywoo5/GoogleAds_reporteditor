@@ -31,6 +31,18 @@ function safeNumber(value) {
     return Number.isFinite(number) ? number : 0;
 }
 
+function niceChartCeiling(value) {
+    const number = safeNumber(value);
+    if (number <= 0) return 2;
+
+    const magnitude = Math.pow(10, Math.floor(Math.log10(number)));
+    const normalized = number / magnitude;
+    const niceSteps = [1, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    const niceStep = niceSteps.find(step => normalized <= step) || 10;
+
+    return niceStep * magnitude;
+}
+
 function parseStoredDate(value) {
     if (!value) return null;
     const match = String(value).match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
@@ -325,7 +337,7 @@ createApp({
         conversionsChartMax() {
             const value = this.conversionsChartValue;
             if (value <= 0) return 2;
-            return Math.max(value, Math.ceil(value));
+            return niceChartCeiling(value * 1.25);
         },
         conversionsChartLabels() {
             const max = this.conversionsChartMax;
@@ -675,17 +687,23 @@ createApp({
     methods: {
         async reloadData() {
             if (this.isRefreshing) return;
-            this.isRefreshing = true;
             this.showDatePicker = false;
             this.dropdown = '';
             this.isNotificationsOpen = false;
+
+            await this.runGoogleAdsDataLoad();
+        },
+        async runGoogleAdsDataLoad() {
+            if (this.isRefreshing) return;
+            this.isRefreshing = true;
 
             try {
                 await this.$nextTick();
                 await Promise.all([
                     this.loadData(),
-                    new Promise(resolve => setTimeout(resolve, 1200))
+                    new Promise(resolve => setTimeout(resolve, 1400))
                 ]);
+                this.currentPage = 1;
             } finally {
                 this.isRefreshing = false;
             }
@@ -713,6 +731,19 @@ createApp({
             } catch (error) {
                 console.error('Unable to load ad assets', error);
             }
+        },
+        hideGoogleAdsBootLoader() {
+            const loader = document.getElementById('google-ads-boot-loader');
+            if (!loader) return;
+
+            const startedAt = Number(window.__googleAdsBootStartedAt || 0);
+            const elapsed = startedAt ? performance.now() - startedAt : 0;
+            const remaining = Math.max(0, 1000 - elapsed);
+
+            window.setTimeout(() => {
+                loader.classList.add('is-hidden');
+                window.setTimeout(() => loader.remove(), 220);
+            }, remaining);
         },
         toggleAssetSort(key) {
             if (this.assetSortKey === key) {
@@ -1048,14 +1079,14 @@ createApp({
             this.draftEndDate = this.cloneDate(this.endDate);
             this.selectingStartDate = true;
         },
-        applyDateRange() {
+        async applyDateRange() {
             if (!this.draftStartDate || !this.draftEndDate) return;
             this.startDate = this.cloneDate(this.draftStartDate);
             this.endDate = this.cloneDate(this.draftEndDate);
             this.appliedDateOption = this.selectedDateOption;
             this.saveDateFilterState();
-            this.refreshCampaignData();
             this.showDatePicker = false;
+            await this.runGoogleAdsDataLoad();
         },
         cancelDateRange() {
             this.resetDraftDateRange();
@@ -1063,9 +1094,9 @@ createApp({
         },
         applyQuickDateOption(option) {
             this.selectDateOption(option);
-            this.applyDateRange();
+            return this.applyDateRange();
         },
-        shiftDateRange(direction) {
+        async shiftDateRange(direction) {
             const start = this.cloneDate(this.startDate);
             const end = this.cloneDate(this.endDate);
             if (!start || !end) return;
@@ -1077,7 +1108,7 @@ createApp({
             this.appliedDateOption = 'custom';
             this.selectedDateOption = 'custom';
             this.saveDateFilterState();
-            this.refreshCampaignData();
+            await this.runGoogleAdsDataLoad();
         },
         saveDateFilterState() {
             try {
@@ -1464,6 +1495,7 @@ createApp({
     },
     async mounted() {
         await this.loadData();
+        this.hideGoogleAdsBootLoader();
         document.addEventListener('click', this.closeDropdown);
         document.addEventListener('click', this.handleClickOutside);
 
