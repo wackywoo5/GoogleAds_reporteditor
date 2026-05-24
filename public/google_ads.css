@@ -1895,8 +1895,8 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .ga-toolbar-filter .thead {
     color: #5f6368;
     cursor: pointer;
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 20px;
     white-space: nowrap;
 }
 
