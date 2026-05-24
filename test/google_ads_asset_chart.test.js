@@ -26,6 +26,7 @@ test('ad assets page renders a middle performance chart with chart controls', ()
   assert.match(template, />Expand</);
   assert.match(template, />Adjust</);
   assert.match(template, /\{\{\s*assetChartLabels\.max\s*\}\}/);
+  assert.match(template, /class="ga-asset-chart-y-label"/);
   assert.doesNotMatch(template, /class="ga-asset-chart-line"/);
   assert.match(template, /<line\s+v-if="assetChartTooltip\.visible"\s+:x1="assetChartPoint\.x"/);
   assert.match(template, /:x2="assetChartPoint\.x"\s+y1="30"\s+y2="154"\s+class="ga-chart-hover-line"/);
@@ -65,6 +66,7 @@ test('campaign and ad group pages render conversions as a dot chart with a left 
   assert.match(template, /\{\{\s*conversionsChartLabels\.max\s*\}\}/);
   assert.match(template, /\{\{\s*conversionsChartLabels\.mid\s*\}\}/);
   assert.match(template, /\{\{\s*conversionsChartLabels\.min\s*\}\}/);
+  assert.match(template, /class="ga-chart-y-label"/);
   assert.match(template, /class="ga-chart-point-marker"\s+:style="conversionsChartPointMarkerStyle"/);
   assert.match(template, /class="ga-chart-point-hitarea"/);
   assert.match(template, /v-if="conversionsChartTooltip\.visible"\s+class="ga-chart-tooltip"/);
