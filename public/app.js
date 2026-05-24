@@ -35,6 +35,8 @@ createApp({
             showRightPanel: true,
             showNotification: true,
             isRefreshing: false,
+            isSaved: false,
+            savedLabel: 'Unsaved',
             compareEnabled: false,
             isFirstNotificationsOpen: false,
             dateRange: '2025年12月9日 - 2026年3月24日',
@@ -537,6 +539,10 @@ createApp({
         }
     },
     methods: {
+        handleSave() {
+            this.isSaved = true;
+            this.savedLabel = `Saved in ${this.modalSelectedAccounts[0]} (${this.modalSelectedAccounts[1]})`;
+        },
         aggregateCampaigns(campaigns) {
             const aggregatedMap = {};
             
@@ -1207,6 +1213,9 @@ createApp({
             this.showFilterValueModal = false;
         },
         applyFilterValue() {
+            setTimeout(() => {
+            this.runReportDataLoad();
+            }, 0.5);
             if (this.filterValueInput) {
                 this.campaignNameFilter = this.filterValueInput;
                 this.isFilterTagFocused = true; // 标签处于选中状态

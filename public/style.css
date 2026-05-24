@@ -1000,6 +1000,14 @@ body {
     letter-spacing: 1px;
 }
 
+.tool-item-gray {
+    color: #bdbdcc;
+    font-weight: 550;
+    unicode-bidi: isolate;
+    margin: 0 14px 0 0px;
+    letter-spacing: 1px;
+}
+
 .tool-item-blue {
     color: #1a73e8;
     font-weight: 550;
@@ -1541,19 +1549,15 @@ input:checked+.toggle-slider:before {
     font-weight: 400;
 }
 
-.data-table.is-reloading tbody td.col-metric,
-.data-table.is-reloading tbody td.col-campaign-id,
-.data-table.is-reloading tfoot td.col-metric {
-    position: relative;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent;
-    text-shadow: none;
+
+.data-table.is-reloading tbody,
+.data-table.is-reloading tfoot {
+    opacity: 0.45;
 }
 
 .data-table.is-reloading tbody td:first-child {
     position: relative;
     color: transparent;
-    text-decoration: none;
 }
 
 .data-table.is-reloading tbody td:first-child::after {
@@ -1561,48 +1565,13 @@ input:checked+.toggle-slider:before {
     position: absolute;
     top: 50%;
     left: 16px;
-    width: min(260px, calc(100% - 32px));
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, #e8eaed 0%, #f8fafd 45%, #e8eaed 100%);
-    background-size: 180% 100%;
+    width: 60px;
+    height: 20px;
+    border-radius: 3px;
+    background: #dadce0;
     transform: translateY(-50%);
-    animation: metric-loading 0.9s ease-in-out infinite;
 }
 
-.data-table.is-reloading tbody td.col-campaign-id::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 16px;
-    width: min(120px, calc(100% - 32px));
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, #e8eaed 0%, #f8fafd 45%, #e8eaed 100%);
-    background-size: 180% 100%;
-    transform: translateY(-50%);
-    animation: metric-loading 0.9s ease-in-out infinite;
-}
-
-.data-table.is-reloading tbody td.col-metric::after,
-.data-table.is-reloading tfoot td.col-metric::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 16px;
-    width: 58px;
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, #e8eaed 0%, #f8fafd 45%, #e8eaed 100%);
-    background-size: 180% 100%;
-    transform: translateY(-50%);
-    animation: metric-loading 0.9s ease-in-out infinite;
-}
-
-.data-table.is-reloading tfoot td.col-metric::after {
-    background: linear-gradient(90deg, #dadce0 0%, #f1f3f4 45%, #dadce0 100%);
-    background-size: 180% 100%;
-}
 
 .data-table th span {
     margin-right: 0px;
@@ -1862,10 +1831,10 @@ body.is-column-resizing * {
 }
 
 .account-picker-dialog {
-    width: min(746px, calc(100vw - 48px));
-    height: min(480px, calc(100vh - 48px));
+    width: min(960px, calc(100vw - 48px));
+    height: min(610px, calc(100vh - 48px));
     display: grid;
-    grid-template-rows: 72px 1fr 54px;
+    grid-template-rows: 108px 1fr 58px;
     background: #fff;
     border-radius: 6px;
     box-shadow:
@@ -1877,7 +1846,7 @@ body.is-column-resizing * {
 .account-picker-header {
     display: flex;
     align-items: center;
-    padding: 16px 20px 12px;
+    padding: 24px 26px 18px;
     border-bottom: 1px solid #dadce0;
 }
 
@@ -1886,17 +1855,17 @@ body.is-column-resizing * {
     align-items: center;
     gap: 0;
     color: #3c4043;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
 }
 
 .account-picker-source {
-    height: 46px;
+    height: 52px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-left: 0;
-    padding: 0 10px;
+    margin-left: 18px;
+    padding: 0 12px;
     border: 1px solid #9aa0a6;
     border-radius: 4px;
     background: #fff;
@@ -1929,7 +1898,7 @@ body.is-column-resizing * {
 
 .account-picker-search,
 .account-picker-selected-head {
-    height: 48px;
+    height: 54px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #dadce0;
@@ -1937,20 +1906,20 @@ body.is-column-resizing * {
 
 .account-picker-search {
     justify-content: space-between;
-    padding: 0 18px 0 36px;
+    padding: 0 20px 0 28px;
     color: #5f6368;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .account-picker-search .material-symbols-outlined {
-    font-size: 28px;
+    font-size: 26px;
 }
 
 .account-picker-selected-head {
     justify-content: space-between;
     padding: 0 14px 0 18px;
     color: #3c4043;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .account-picker-selected-head button,
@@ -1965,17 +1934,17 @@ body.is-column-resizing * {
 
 .account-picker-row,
 .account-picker-selected-row {
-    min-height: 48px;
+    min-height: 52px;
     display: grid;
     align-items: center;
     border-bottom: 1px solid #dadce0;
     color: #3c4043;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .account-picker-row {
-    grid-template-columns: 36px minmax(140px, 1fr) minmax(120px, 0.7fr);
-    padding: 0 20px;
+    grid-template-columns: 40px minmax(180px, 1fr) minmax(140px, 0.7fr);
+    padding: 0 26px;
     column-gap: 0;
     cursor: pointer;
 }
@@ -1991,8 +1960,8 @@ body.is-column-resizing * {
 }
 
 .account-picker-check {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2008,7 +1977,7 @@ body.is-column-resizing * {
 
 .account-picker-row input:checked + .account-picker-check::before {
     content: "";
-    width: 11px;
+    width: 10px;
     height: 6px;
     border-left: 3px solid #fff;
     border-bottom: 3px solid #fff;
@@ -2021,14 +1990,14 @@ body.is-column-resizing * {
 }
 
 .account-picker-selected-row {
-    grid-template-columns: minmax(130px, 1fr) minmax(110px, 0.8fr) 36px;
+    grid-template-columns: minmax(190px, 1fr) minmax(130px, 0.8fr) 36px;
     padding: 0 14px 0 18px;
     column-gap: 10px;
 }
 
 .account-picker-remove {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2044,7 +2013,7 @@ body.is-column-resizing * {
 }
 
 .account-picker-remove .material-symbols-outlined {
-    font-size: 26px;
+    font-size: 24px;
 }
 
 .account-picker-actions {

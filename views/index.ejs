@@ -250,7 +250,7 @@
                     <button class="selector-btn">
                         <div>
                             <span style="font-size: 18px; font-weight: 500;">2</span>
-                            <span style="font-size: 12px; font-weight: 500;">Unsaved</span>
+                            <span style="font-size: 12px; font-weight: 500;">{{ savedLabel }}</span>
                         </div>
                         <span class="material-symbols-outlined">arrow_drop_down</span>
                     </button>
@@ -275,10 +275,10 @@
                 <div class="divider" style="height: 56px; margin: 0 10px;"></div>
                 <div class="toolbar-right-editbtn">
 
-                    <button class="tool-btn tool-item-black">
+                    <button class="tool-btn" :class="isSaved ? 'tool-item-gray' : 'tool-item-blue'" @click="handleSave">
                         <span>Reset</span>
                     </button>
-                    <button class="tool-btn tool-item-blue">
+                    <button class="tool-btn" :class="isSaved ? 'tool-item-gray' : 'tool-item-blue'" @click="handleSave">
                         <span>Save</span>
                     </button>
                     <button class="tool-btn tool-item-blue">
@@ -852,16 +852,16 @@
                 <tbody>
                     <tr v-for="campaign in paginatedCampaigns" :key="campaign.id"
                         :class="{ 'selected': campaign.selected }">
-                        <td>{{ campaign.campaign }} </td>
-                        <td v-show="hasCampaignId" class="col-campaign-id">{{ campaign.campaignId }}</td>
-                        <td class="col-metric">{{ formatCurrency(campaign.cost) }}</td>
-                        <td class="col-metric">{{ formatNumber(campaign.impressions) }}</td>
-                        <td class="col-metric">{{ formatNumber(campaign.clicks) }}</td>
-                        <td class="col-metric">{{ formatNumber(campaign.installs, 2) }}</td>
-                        <td class="col-metric">{{ formatNumber(campaign.inAppActions, 2) }}</td>
-                        <td class="col-metric">{{ formatCurrency(campaign.costPerInstall) }}</td>
-                        <td class="col-metric">{{ formatCurrency(campaign.costPerInAppActions) }}</td>
-                        <td class="col-metric">{{ formatPercent(campaign.ctr) }}</td>
+                        <td>{{ isRefreshing ? '—' : campaign.campaign }} </td>
+                        <td v-show="hasCampaignId" class="col-campaign-id">{{ isRefreshing ? '—' : campaign.campaignId }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatCurrency(campaign.cost) }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatNumber(campaign.impressions) }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatNumber(campaign.clicks) }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatNumber(campaign.installs, 2) }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatNumber(campaign.inAppActions, 2) }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatCurrency(campaign.costPerInstall) }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatCurrency(campaign.costPerInAppActions) }}</td>
+                        <td class="col-metric">{{ isRefreshing ? '—' : formatPercent(campaign.ctr) }}</td>
                     </tr>
                     <tr v-if="!isRefreshing && filteredCampaigns.length === 0" class="empty-state-row">
                         <td colspan="10" class="empty-state-cell">No statistics match your filters</td>
@@ -869,16 +869,16 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td class="fw500">Total</td>
-                        <td v-show="hasCampaignId" class="col-metric fw500"></td>
+                        <td class="fw500">{{ isRefreshing ? '—' : 'Total' }}</td>
+                        <td v-show="hasCampaignId" class="col-metric fw500">{{ isRefreshing ? '—' : '' }}</td>
                         <td class="col-metric fw500">—</td>
-                        <td class="col-metric fw500">{{ formatNumber(totals.impressions) }}</td>
-                        <td class="col-metric fw500">{{ formatNumber(totals.clicks) }}</td>
-                        <td class="col-metric fw500">{{ formatNumber(totals.installs, 2) }}</td>
-                        <td class="col-metric fw500">{{ formatNumber(totals.inAppActions, 2) }}</td>
+                        <td class="col-metric fw500">{{ isRefreshing ? '—' : formatNumber(totals.impressions) }}</td>
+                        <td class="col-metric fw500">{{ isRefreshing ? '—' : formatNumber(totals.clicks) }}</td>
+                        <td class="col-metric fw500">{{ isRefreshing ? '—' : formatNumber(totals.installs, 2) }}</td>
+                        <td class="col-metric fw500">{{ isRefreshing ? '—' : formatNumber(totals.inAppActions, 2) }}</td>
                         <td class="col-metric fw500">—</td>
                         <td class="col-metric fw500">—</td>
-                        <td class="col-metric fw500">{{ formatPercent(totals.ctr) }}</td>
+                        <td class="col-metric fw500">{{ isRefreshing ? '—' : formatPercent(totals.ctr) }}</td>
                     </tr>
                 </tfoot>
             </table>

@@ -162,7 +162,8 @@ test('report editor account selector keeps selected accounts in the right panel 
   assert.match(template, /v-for="account in selectedAccountItems"/);
   assert.match(template, /@click="openAccountPicker"/);
   const styles = fs.readFileSync(path.join(__dirname, '..', 'public', 'style.css'), 'utf8');
-  assert.match(styles, /\.account-picker-dialog\s*\{[^}]*width:\s*min\(746px,\s*calc\(100vw - 48px\)\);[^}]*height:\s*min\(480px,\s*calc\(100vh - 48px\)\);/s);
+  assert.match(styles, /\.account-picker-dialog\s*\{[^}]*width:\s*min\(960px,\s*calc\(100vw - 48px\)\);[^}]*height:\s*min\(610px,\s*calc\(100vh - 48px\)\);/s);
+  assert.match(styles, /\.account-picker-row,\s*\.account-picker-selected-row\s*\{[^}]*font-size:\s*15px;/s);
 
   config.methods.openAccountPicker.call(context);
   assert.equal(context.showAccountPicker, true);
