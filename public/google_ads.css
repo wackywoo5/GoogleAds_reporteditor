@@ -1940,12 +1940,14 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 }
 
 .ga-toolbar-filter .filter-option {
-    padding: 12px 24px;
+    padding: 10px 16px;
 }
 
 .ga-toolbar-filter .filter-option-name {
-    font-size: 18px;
-    line-height: 24px;
+    display: block;
+    color: #212529;
+    font-size: 14px;
+    line-height: normal;
 }
 
 .ga-toolbar-filter .filter-value-modal {
