@@ -2031,6 +2031,17 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     min-width: 0;
 }
 
+.ga-toolbar-filter .filter-tag-close.material-symbols-outlined {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin-left: 2px;
+    color: #1967d2;
+    font-size: 20px;
+    line-height: 20px;
+    flex-shrink: 0;
+}
+
 .ga-toolbar-filter .field {
     min-width: 160px;
     border: 0 !important;
@@ -2429,17 +2440,24 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     box-shadow: 0 2px 6px rgba(60, 64, 67, 0.16);
 }
 
+.ga-data-table.assets thead,
+.ga-data-table.assets thead th {
+    position: static;
+    top: auto;
+    z-index: auto;
+}
+
 .ga-data-table.assets th.name-col,
 .ga-data-table.assets td.name-col {
-    position: sticky;
-    left: 0;
-    z-index: 6;
-    background: #fff;
-    box-shadow: 1px 0 0 #dadce0;
+    position: static;
+    left: auto;
+    z-index: auto;
+    background: inherit;
+    box-shadow: none;
 }
 
 .ga-data-table.assets th.name-col {
-    z-index: 9;
+    z-index: auto;
 }
 
 .ga-data-table.assets tr:hover td.name-col {

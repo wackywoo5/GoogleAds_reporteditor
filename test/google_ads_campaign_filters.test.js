@@ -288,6 +288,7 @@ test('campaigns table freezes the toolbar header rows and left campaign columns'
   assert.match(template, /@click="toggleCampaignSort\('cost'\)"/);
   assert.match(template, /@click="toggleCampaignSort\('costPerInstall'\)"/);
   assert.match(template, /@click="toggleCampaignSort\('installs'\)"/);
+  assert.match(styles, /\.ga-toolbar-filter\s+\.filter-tag-close\.material-symbols-outlined\s*\{[^}]*padding:\s*0;[^}]*color:\s*#1967d2;[^}]*font-size:\s*20px;/s);
   assert.match(styles, /\.ga-table-panel--campaigns\s+\.ga-table-toolbar\s*\{[^}]*top:\s*0;[^}]*z-index:\s*45;[^}]*background:\s*#eef0f1;/s);
   assert.match(styles, /\.ga-table-scroll\s*\{[^}]*overflow:\s*auto;[^}]*max-height:\s*calc\(100vh - 240px\);/s);
   assert.match(styles, /\.ga-table-scroll-inner\s*\{[^}]*overflow:\s*visible;[^}]*max-height:\s*none;/s);
