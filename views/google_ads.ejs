@@ -198,13 +198,15 @@
                             'expand_more' }}</span>
                     </button>
                     <div class="ga-sidebar-submenu">
+                        <a class="ga-sidebar-link" href="#" data-tooltip="Brand report">Brand report</a>
+                        <a class="ga-sidebar-link" href="#" data-tooltip="When and where ads showed">When and where ads<br>showed</a>
                         <a class="ga-sidebar-link" 
-   :class="{ active: pageMode === 'reporteditor' }" 
-   href="#" 
-   @click="switchPage('reporteditor')" 
-   data-tooltip="Report editor">
-    Report editor
-</a>
+                        :class="{ active: pageMode === 'reporteditor' }" 
+                        href="#" 
+                        @click="switchPage('reporteditor')" 
+                        data-tooltip="Report editor">
+                            Report editor
+                        </a>
                         <a class="ga-sidebar-link" href="#" data-tooltip="Dashboards"
                             data-tooltip="Dashboards">Dashboards</a>
                     </div>
@@ -238,12 +240,15 @@
                             data-tooltip="Assets">Assets</a>
                     </div>
                 </div>
-                <div class="ga-sidebar-group" href="#">
-                    <button class="ga-sidebar-group-title" type="button">
-                        <span data-tooltip="Audiences, keywords, and content">Audiences, keywords, and
-                            <br>content</span>
-                        <span class="material-symbols-outlined">expand_more</span>
+                <div class="ga-sidebar-group" :class="{ open: ads_isAudiencesOpen }">
+                    <button class="ga-sidebar-group-title" type="button" @click="ads_isAudiencesOpen = !ads_isAudiencesOpen" data-tooltip="Audiences, keywords, and content">
+                        <span>Audiences, keywords, and<br>content</span>
+                        <span class="material-symbols-outlined">{{ ads_isAudiencesOpen ? 'expand_less' :
+                            'expand_more' }}</span>
                     </button>
+                    <div class="ga-sidebar-submenu">
+                        <a class="ga-sidebar-link" href="#" data-tooltip="Audiences">Audiences</a>
+                    </div>
                 </div>
                 <div class="ga-sidebar-group" href="#">
                     <button class="ga-sidebar-group-title" type="button">
