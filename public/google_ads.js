@@ -19,10 +19,14 @@ function getInitialPageMode() {
     if (window.GOOGLE_ADS_PAGE) {
         return window.GOOGLE_ADS_PAGE;
     }
-    if (window.location.pathname.includes('/adassets')) return 'adassets';
-    if (window.location.pathname.includes('/adgroups')) return 'adgroups';
-    if (window.location.pathname.includes('/reporteditor')) return 'reporteditor';
-    if (window.location.pathname.includes('/overview')) return 'overview';
+    return getPageModeFromPath(window.location.pathname);
+}
+
+function getPageModeFromPath(pathname) {
+    if (pathname.includes('/adassets')) return 'adassets';
+    if (pathname.includes('/adgroups')) return 'adgroups';
+    if (pathname.includes('/reporteditor')) return 'reporteditor';
+    if (pathname.includes('/overview')) return 'overview';
     return 'campaigns';
 }
 
@@ -125,6 +129,8 @@ createApp({
             ads_isAssetsOpen:false,
             isNotificationsOpen: false,
             isRefreshing: false,
+            isSoftRefreshing: false,
+            refreshMode: 'full',
             pageSize: 30,
             pageSizeOptions: [10, 30, 50, 100],
             showPageSizeDropdown: false,
@@ -215,7 +221,7 @@ createApp({
                 .sort((left, right) => left.campaign.localeCompare(right.campaign, 'en', { numeric: true }));
         },
         adGroupRows() {
-            const campaignName = this.selectedCampaignId || params.get('campaignId') || '';
+            const campaignName = this.selectedCampaignId || (this.selectedCampaign ? this.selectedCampaign.campaign : '') || '';
             if (!campaignName || !this.rawData.length) return [];
             const filtered = this.filteredRawData.filter(row => row.campaign === campaignName);
             return this.mergeAdGroupsBy(filtered);
@@ -315,7 +321,7 @@ createApp({
                 ];
             }
 
-            if (this.isRefreshing) {
+            if (this.isRefreshing && this.refreshMode === 'full') {
                 return [
                     { label: 'Avg. target CPA', value: '-', delta: '-' },
                     { label: 'Cost', value: this.formatCurrency(this.totals.cost), delta: this.randomizedMetricDelta('campaigns-cost',  this.totals.cost, 'money') },
@@ -482,7 +488,7 @@ createApp({
             const src = this.adGroupTotal;
             if (!src.clicks && !src.cost) return [];
 
-            const campaignKey = params.get('campaignId') || 'default';
+            const campaignKey = this.selectedCampaignId || (this.selectedCampaign ? this.selectedCampaign.campaign : '') || 'default';
             let cached = null;
             try { cached = JSON.parse(sessionStorage.getItem(ASSET_RANDOM_CACHE_KEY + campaignKey)); } catch(e) {}
 
@@ -710,19 +716,25 @@ createApp({
 
             await this.runGoogleAdsDataLoad();
         },
-        async runGoogleAdsDataLoad() {
+        async runGoogleAdsDataLoad(options = {}) {
             if (this.isRefreshing) return;
+            const mode = options.mode === 'soft' ? 'soft' : 'full';
+            const minimumDelay = mode === 'soft' ? 320 : 1400;
+            this.refreshMode = mode;
             this.isRefreshing = true;
+            this.isSoftRefreshing = mode === 'soft';
 
             try {
                 await this.$nextTick();
                 await Promise.all([
                     this.loadData(),
-                    new Promise(resolve => setTimeout(resolve, 1400))
+                    new Promise(resolve => setTimeout(resolve, minimumDelay))
                 ]);
                 this.currentPage = 1;
             } finally {
                 this.isRefreshing = false;
+                this.isSoftRefreshing = false;
+                this.refreshMode = 'full';
             }
         },
         async loadData() {
@@ -1114,7 +1126,7 @@ createApp({
             this.appliedDateOption = this.selectedDateOption;
             this.saveDateFilterState();
             this.showDatePicker = false;
-            await this.runGoogleAdsDataLoad();
+            await this.runGoogleAdsDataLoad({ mode: 'soft' });
         },
         cancelDateRange() {
             this.resetDraftDateRange();
@@ -1136,7 +1148,7 @@ createApp({
             this.appliedDateOption = 'custom';
             this.selectedDateOption = 'custom';
             this.saveDateFilterState();
-            await this.runGoogleAdsDataLoad();
+            await this.runGoogleAdsDataLoad({ mode: 'soft' });
         },
         saveDateFilterState() {
             try {
@@ -1152,7 +1164,7 @@ createApp({
         },
         toggleDropdown(name) {
             if (name === 'view' && this.pageMode !== 'campaigns') {
-                window.location.href = '/aw/campaigns';
+                this.navigateToGoogleAdsRoute('/aw/campaigns');
                 return;
             }
             this.showPageSizeDropdown = false;
@@ -1512,16 +1524,52 @@ createApp({
         toggleNotifications() {
             this.isNotificationsOpen = !this.isNotificationsOpen
         },
+        startSoftPageTransition() {
+            this.isSoftRefreshing = true;
+            window.setTimeout(() => {
+                this.isSoftRefreshing = false;
+            }, 260);
+        },
+        syncGoogleAdsRoute(url, options = {}) {
+            const routeBase = window.location.origin || 'https://localhost';
+            const target = url instanceof URL ? url : new URL(url, routeBase);
+            const mode = getPageModeFromPath(target.pathname);
+            const campaignId = target.searchParams.get('campaignId');
+            const adGroupId = target.searchParams.get('adGroupId');
+
+            this.pageMode = mode;
+            if (mode === 'campaigns') {
+                this.selectedCampaignId = campaignId || '';
+            } else {
+                this.selectedCampaignId = campaignId || this.selectedCampaignId || (this.campaignRows[0] ? this.campaignRows[0].campaign : '');
+            }
+            this.selectedAdGroupId = adGroupId || this.selectedAdGroupId || 'adgroup-1';
+            this.currentPage = 1;
+            this.dropdown = '';
+            this.showDatePicker = false;
+            this.showPageSizeDropdown = false;
+            this.isNotificationsOpen = false;
+
+            if (options.push !== false) {
+                window.history.pushState(null, '', `${target.pathname}${target.search}`);
+            }
+
+            this.$nextTick(() => {
+                const main = document.querySelector('.ga-main');
+                if (main) main.scrollTop = 0;
+            });
+        },
+        navigateToGoogleAdsRoute(target, event) {
+            if (event) event.preventDefault();
+            this.startSoftPageTransition();
+            this.syncGoogleAdsRoute(target);
+        },
+        handlePopState() {
+            this.startSoftPageTransition();
+            this.syncGoogleAdsRoute(`${window.location.pathname}${window.location.search || ''}`, { push: false });
+        },
         switchPage(mode) {
-        this.pageMode = mode;
-        // 更新浏览器地址栏，实现 /overview 或 /reporteditor 的效果
-        window.history.pushState(null, '', `/aw/${mode}`);
-        
-        // 强制重置滚动位置
-        this.$nextTick(() => {
-            const main = document.querySelector('.ga-main');
-            if (main) main.scrollTop = 0;
-        });
+            this.navigateToGoogleAdsRoute(`/aw/${mode}`);
         }
     },
     async mounted() {
@@ -1529,6 +1577,7 @@ createApp({
         this.hideGoogleAdsBootLoader();
         document.addEventListener('click', this.closeDropdown);
         document.addEventListener('click', this.handleClickOutside);
+        window.addEventListener('popstate', this.handlePopState);
 
         // Add scroll listener for hiding context bar
         const mainElement = document.querySelector('.ga-main');
@@ -1539,6 +1588,7 @@ createApp({
     beforeUnmount() {
         document.removeEventListener('click', this.closeDropdown);
         document.removeEventListener('click', this.handleClickOutside);
+        window.removeEventListener('popstate', this.handlePopState);
 
         // Remove scroll listener
         const mainElement = document.querySelector('.ga-main');

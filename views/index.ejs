@@ -677,6 +677,10 @@
                         <div class="filter-value-modal-content">
                             <div class="filter-value-header">
                                 <span class="filter-value-title">{{ selectedFilterName }}</span>
+                                <button class="filter-value-close" type="button" aria-label="Close filter"
+                                    @click="closeFilterValueModal">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
                             </div>
                             <div class="filter-value-body">
                                 <div class="filter-value-row">
@@ -688,7 +692,7 @@
                                     </select>
                                 </div>
                                 <div class="filter-value-row">
-                                    <input type="text" v-model="filterValueInput" class="filter-value-text-input" placeholder="Enter value">
+                                    <input type="text" v-model="filterValueInput" class="filter-value-text-input" placeholder="Enter one value per line">
                                 </div>
                             </div>
                             <div class="filter-value-footer">

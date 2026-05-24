@@ -32,13 +32,14 @@
                 fill="#34A853" r="29.33"></circle>
         </svg>
     </div>
-    <div id="google-ads-app" :class="{ 'ga-nav-collapsed': isNavCollapsed, 'ga-refreshing': isRefreshing }" v-cloak>
+    <div id="google-ads-app" :class="{ 'ga-nav-collapsed': isNavCollapsed, 'ga-refreshing': isRefreshing && refreshMode === 'full', 'ga-soft-refreshing': isSoftRefreshing }" v-cloak>
         <header class="ga-topbar">
             <div class="ga-topbar-left">
                 <button class="ga-icon-button" type="button" aria-label="Toggle navigation" @click="toggleNavigation">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
-                <a class="ga-brand" href="/aw/campaigns" aria-label="Google Ads campaigns">
+                <a class="ga-brand" href="/aw/campaigns" aria-label="Google Ads campaigns"
+                    @click.prevent="navigateToGoogleAdsRoute('/aw/campaigns', $event)">
                     <svg class="ga-ads-logo" enable-background="new 0 0 192 192" viewBox="0 0 192 192"
                         xmlns="http://www.w3.org/2000/svg">
                         <g>
@@ -83,7 +84,7 @@
                     <span>Appearance</span>
                 </button>
                 <button class="ga-tool-button ga-refresh-button" type="button"
-                    :class="{ refreshing: isRefreshing }" :disabled="isRefreshing"
+                    :class="{ refreshing: isRefreshing && refreshMode === 'full' }" :disabled="isRefreshing"
                     :aria-busy="isRefreshing.toString()" @click="reloadData" data-tooltip="Refresh">
                     <i class="material-symbols-outlined-extended ga-refresh-icon">refresh</i>
                     <span>Refresh</span>
@@ -152,11 +153,11 @@
                     <span class="material-symbols-outlined">overview</span>
                     <span>Overview</span>
                 </a> -->
-                <a class="ga-rail-item" href="/aw/campaigns">
+                <a class="ga-rail-item" href="/aw/campaigns" @click.prevent="navigateToGoogleAdsRoute('/aw/campaigns', $event)">
                     <i class="material-symbols-outlined-extended">team_drive_outline</i>
                     <span>Accounts</span>
                 </a>
-                <a class="ga-rail-item active" href="/aw/campaigns">
+                <a class="ga-rail-item active" href="/aw/campaigns" @click.prevent="navigateToGoogleAdsRoute('/aw/campaigns', $event)">
                     <span class="material-symbols-outlined">campaign</span>
                     <span>Campaigns</span>
                 </a>
@@ -220,10 +221,13 @@
                     </button>
                     <div class="ga-sidebar-submenu">
                         <a class="ga-sidebar-link" :class="{ active: pageMode === 'campaigns' }" href="/aw/campaigns"
+                            @click.prevent="navigateToGoogleAdsRoute('/aw/campaigns', $event)"
                             data-tooltip="Campaigns">Campaigns</a>
                         <a class="ga-sidebar-link" :class="{ active: pageMode === 'adgroups' }" :href="adGroupsHref"
+                            @click.prevent="navigateToGoogleAdsRoute(adGroupsHref, $event)"
                             data-tooltip="Ad groups">Ad groups</a>
                         <a class="ga-sidebar-link" :class="{ active: pageMode === 'adassets' }" :href="adAssetsHref"
+                            @click.prevent="navigateToGoogleAdsRoute(adAssetsHref, $event)"
                             data-tooltip="Ad assets">Ad assets</a>
                         <a class="ga-sidebar-link" href="#" data-tooltip="Experiments">Experiments</a>
                     </div>
@@ -237,6 +241,7 @@
                     </button>
                     <div class="ga-sidebar-submenu">
                         <a class="ga-sidebar-link" :class="{ active: pageMode === 'adassets' }" :href="adAssetsHref"
+                            @click.prevent="navigateToGoogleAdsRoute(adAssetsHref, $event)"
                             data-tooltip="Assets">Assets</a>
                     </div>
                 </div>
@@ -257,7 +262,7 @@
                 </div>
             </nav>
 
-            <main class="ga-main" :class="{ 'is-refreshing': isRefreshing }">
+            <main class="ga-main" :class="{ 'is-refreshing': isRefreshing && refreshMode === 'full', 'is-soft-refreshing': isSoftRefreshing }">
                 <section class="ga-context-bar" :class="{ hidden: isContextBarHidden }">
                     <div class="ga-selectors">
                         <div class="ga-selector active" v-if="!isContextBarHidden" @click.stop="toggleDropdown('view')">
@@ -265,7 +270,7 @@
                             <a><span class="material-symbols-outlined">home</span> All campaigns</a>
                             <span class="material-symbols-outlined">arrow_drop_down</span>
                             <div v-if="dropdown === 'view'" class="ga-dropdown">
-                                <a href="/aw/campaigns">All campaigns</a>
+                                <a href="/aw/campaigns" @click.prevent="navigateToGoogleAdsRoute('/aw/campaigns', $event)">All campaigns</a>
                             </div>
                         </div>
                         <div class="ga-selector" :class="{ active: selectedCampaign }"
@@ -275,7 +280,8 @@
                             <span class="material-symbols-outlined">arrow_drop_down</span>
                             <div v-if="dropdown === 'campaign'" class="ga-dropdown wide">
                                 <a v-for="campaign in campaignRows" :key="campaign.id"
-                                    :href="campaignHref(campaign.campaign)">
+                                    :href="campaignHref(campaign.campaign)"
+                                    @click.prevent="navigateToGoogleAdsRoute(campaignHref(campaign.campaign), $event)">
                                     {{ campaign.campaign }}
                                 </a>
                             </div>
@@ -286,7 +292,7 @@
                             <a>{{ pageMode === 'adassets' ? adGroup.adGroup : 'Select an ad group' }}</a>
                             <span class="material-symbols-outlined">arrow_drop_down</span>
                             <div v-if="dropdown === 'adgroup'" class="ga-dropdown">
-                                <a :href="adAssetsHref">{{ adGroup.adGroup }}</a>
+                                <a :href="adAssetsHref" @click.prevent="navigateToGoogleAdsRoute(adAssetsHref, $event)">{{ adGroup.adGroup }}</a>
                             </div>
                         </div>
                     </div>
@@ -837,9 +843,6 @@
                         </button>
                     </div>
                     <svg viewBox="0 0 1000 180" preserveAspectRatio="none">
-                        <text x="34" y="32" class="ga-asset-chart-label">{{ assetChartLabels.max }}</text>
-                        <text x="34" y="92" class="ga-asset-chart-label">{{ assetChartLabels.mid }}</text>
-                        <text x="34" y="154" class="ga-asset-chart-label">{{ assetChartLabels.min }}</text>
                         <line x1="78" y1="30" x2="970" y2="30"></line>
                         <line x1="78" y1="90" x2="970" y2="90"></line>
                         <line x1="78" y1="152" x2="970" y2="152"></line>
@@ -850,6 +853,9 @@
                             @mouseleave="hideAssetChartTooltip" @focus="showAssetChartTooltip"
                             @blur="hideAssetChartTooltip" tabindex="0" aria-label="Show asset conversions data"></circle>
                     </svg>
+                    <span class="ga-asset-chart-y-label" style="--chart-y: 30;">{{ assetChartLabels.max }}</span>
+                    <span class="ga-asset-chart-y-label" style="--chart-y: 90;">{{ assetChartLabels.mid }}</span>
+                    <span class="ga-asset-chart-y-label" style="--chart-y: 152;">{{ assetChartLabels.min }}</span>
                     <span class="ga-asset-chart-point-marker" :style="assetChartPointMarkerStyle"
                         aria-hidden="true"></span>
                     <div v-if="assetChartTooltip.visible" class="ga-chart-tooltip ga-asset-chart-tooltip"
@@ -869,11 +875,8 @@
                     class="ga-chart-area ga-conversions-dot-chart" @mouseleave="hideConversionsChartTooltip">
                     <svg viewBox="0 0 1000 180" preserveAspectRatio="none" aria-label="Conversions dot chart">
                         <line x1="78" y1="30" x2="970" y2="30"></line>
-                        <text x="58" y="34" class="ga-chart-label">{{ conversionsChartLabels.max }}</text>
                         <line x1="78" y1="92" x2="970" y2="92"></line>
-                        <text x="58" y="96" class="ga-chart-label">{{ conversionsChartLabels.mid }}</text>
                         <line x1="78" y1="154" x2="970" y2="154"></line>
-                        <text x="58" y="158" class="ga-chart-label">{{ conversionsChartLabels.min }}</text>
                         <line v-if="conversionsChartTooltip.visible" :x1="conversionsChartPoint.x"
                             :x2="conversionsChartPoint.x" y1="30" y2="154" class="ga-chart-hover-line"></line>
                         <circle :cx="conversionsChartPoint.x" :cy="conversionsChartPoint.y" r="16"
@@ -881,6 +884,9 @@
                             @mouseleave="hideConversionsChartTooltip" @focus="showConversionsChartTooltip"
                             @blur="hideConversionsChartTooltip" tabindex="0" aria-label="Show conversions data"></circle>
                     </svg>
+                    <span class="ga-chart-y-label" style="--chart-y: 30;">{{ conversionsChartLabels.max }}</span>
+                    <span class="ga-chart-y-label" style="--chart-y: 92;">{{ conversionsChartLabels.mid }}</span>
+                    <span class="ga-chart-y-label" style="--chart-y: 154;">{{ conversionsChartLabels.min }}</span>
                     <span class="ga-chart-point-marker" :style="conversionsChartPointMarkerStyle"
                         aria-hidden="true"></span>
                     <div v-if="conversionsChartTooltip.visible" class="ga-chart-tooltip"
@@ -892,7 +898,7 @@
                             {{ conversionsChartTooltipValue }}
                         </div>
                     </div>
-                    <div v-if="isRefreshing" class="ga-chart-loading" role="status" aria-label="Refreshing data">
+                    <div v-if="isRefreshing && refreshMode === 'full'" class="ga-chart-loading" role="status" aria-label="Refreshing data">
                         <span></span>
                     </div>
                     <span class="ga-chart-start">{{ formattedStartDate }}</span>
@@ -900,8 +906,8 @@
                 </section>
 
                 <section class="ga-table-panel" :class="{
-                    'ga-table-panel--refreshing': isRefreshing,
-                    'ga-table-panel--campaign-refreshing': isRefreshing && pageMode === 'campaigns',
+                    'ga-table-panel--refreshing': isRefreshing && refreshMode === 'full',
+                    'ga-table-panel--campaign-refreshing': isRefreshing && refreshMode === 'full' && pageMode === 'campaigns',
                     'ga-table-panel--adassets': pageMode === 'adassets'
                 }">
                    <button class="ga-floating-add" :class="{ 'ga-floating-add--fixed': floatingAddIsFixed }" type="button"
@@ -998,7 +1004,8 @@
                                     <td class="name-col">
                                         <!-- <span class="material-symbols-outlined ga-campaign-type">download_for_offline</span> -->
                                         <span class="ga-nghost-awv"></span>
-                                        <a :href="campaignHref(campaign.campaign)">{{ campaign.campaign }}</a>
+                                        <a :href="campaignHref(campaign.campaign)"
+                                            @click.prevent="navigateToGoogleAdsRoute(campaignHref(campaign.campaign), $event)">{{ campaign.campaign }}</a>
                                         <i class="ga-status-rowbudget" aria-hidden="true" style="margin-left: 15px; margin-right: 25px;"></i>
                                         <i class="material-symbols-outlined ga-status-rowitem" aria-hidden="true">settings</i>
                                     </td>
@@ -1077,7 +1084,7 @@
                                     <td><span
                                             :class="'ga-status-dot ' + statusDotClass(getStatusFromRow(adGroup))"></span>
                                     </td>
-                                    <td class="name-col"><a :href="adAssetsHref">{{ adGroup.adGroup }}</a></td>
+                                    <td class="name-col"><a :href="adAssetsHref" @click.prevent="navigateToGoogleAdsRoute(adAssetsHref, $event)">{{ adGroup.adGroup }}</a></td>
                                     <td><span class="ga-dashed">{{ dash(adGroup.Status || adGroup.status) }}</span></td>
                                     <td>{{ fixed(adGroup.TargetCPA || adGroup.targetCpa) }}</td>
                                     <td>{{ numberOrZero(adGroup.Conversions) }}</td>

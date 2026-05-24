@@ -36,6 +36,7 @@ function loadGoogleAdsAppConfig() {
     JSON,
     Math,
     Promise,
+    URL,
     URLSearchParams,
     loader,
     fetchCount: 0,
@@ -214,7 +215,7 @@ test('campaign page data reload keeps the loading state visible like the report 
   assert.equal(context.isRefreshing, false);
 });
 
-test('campaign date range changes use the same delayed data loading state', async () => {
+test('campaign date range changes use the soft refresh transition state', async () => {
   const { config, sandbox } = loadGoogleAdsAppConfig();
   const context = {
     ...config.data(),
@@ -241,16 +242,50 @@ test('campaign date range changes use the same delayed data loading state', asyn
   await new Promise(resolve => setImmediate(resolve));
 
   assert.equal(context.isRefreshing, true);
+  assert.equal(context.isSoftRefreshing, true);
+  assert.equal(context.refreshMode, 'soft');
   assert.equal(context.showDatePicker, false);
   assert.equal(context.appliedDateOption, 'custom');
   assert.equal(sandbox.loadDataCount, 1);
-  assert.equal(sandbox.timeouts[0].delay, 1400);
+  assert.equal(sandbox.timeouts[0].delay, 320);
 
   sandbox.timeouts[0].callback();
   await applyPromise;
 
   assert.equal(context.currentPage, 1);
   assert.equal(context.isRefreshing, false);
+  assert.equal(context.isSoftRefreshing, false);
+  assert.equal(context.refreshMode, 'full');
+});
+
+test('google ads in-app route changes avoid full page navigation and use a soft transition', () => {
+  const { config, sandbox } = loadGoogleAdsAppConfig();
+  const history = [];
+  const context = {
+    ...config.data(),
+    ...config.methods,
+    campaignRows: [{ campaign: 'BA608', id: 'BA608' }],
+    $nextTick(callback) {
+      if (callback) callback();
+      return Promise.resolve();
+    }
+  };
+  sandbox.window.history = {
+    pushState(_state, _title, url) {
+      history.push(url);
+    }
+  };
+
+  config.methods.navigateToGoogleAdsRoute.call(context, '/aw/adgroups?campaignId=BA608');
+
+  assert.equal(context.isSoftRefreshing, true);
+  assert.equal(context.pageMode, 'adgroups');
+  assert.equal(context.selectedCampaignId, 'BA608');
+  assert.deepEqual(history, ['/aw/adgroups?campaignId=BA608']);
+  assert.equal(sandbox.timeouts[0].delay, 260);
+
+  sandbox.timeouts[0].callback();
+  assert.equal(context.isSoftRefreshing, false);
 });
 
 test('campaign conversion chart uses an arithmetic nice-number axis', () => {
