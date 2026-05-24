@@ -1612,6 +1612,26 @@
     animation: ga-refresh-spin 0.8s linear infinite;
 }
 
+.ga-table-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(2px);
+}
+
+.ga-table-loading-spinner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid #d2e3fc;
+    border-top-color: #1a73e8;
+    animation: ga-refresh-spin 0.7s linear infinite;
+}
+
 .ga-chart-area svg {
     width: calc(100% - 72px);
     height: 170px;
@@ -1839,15 +1859,34 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
 .ga-table-toolbar {
     position: sticky;
-    top: 88px;
+    top: 72px;
+    left: 0;
     height: 56px;
     border-bottom: 1px solid #dadce0;
     justify-content: space-between;
     padding: 10px 0 10px 36px;
     align-items: center;
     background: #fff;
-    z-index: 15;
+    z-index: 20;
     box-shadow: 0 2px 4px rgba(60, 64, 67, 0.1);
+}
+
+.ga-table-panel--campaigns .ga-table-toolbar {
+    top: 128px;
+    z-index: 45;
+    transform: translateX(var(--ga-main-scroll-left, 0px));
+}
+
+.ga-campaign-sticky-backdrop {
+    position: sticky;
+    top: 72px;
+    left: 0;
+    height: 56px;
+    margin-bottom: -56px;
+    background: #eef0f1;
+    z-index: 44;
+    pointer-events: none;
+    transform: translateX(var(--ga-main-scroll-left, 0px));
 }
 
 .ga-table-panel--adassets .ga-table-toolbar {
@@ -1867,6 +1906,64 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     color: #5f6368;
     font-size: 14px;
     font-family: "Google Sans", Roboto, Arial, sans-serif;
+}
+
+.ga-toolbar-filter {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 420px;
+    height: 36px;
+}
+
+.ga-toolbar-filter .material-symbols-outlined {
+    padding-left: 24px;
+    padding-right: 8px;
+}
+
+.ga-toolbar-filter-control {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+    min-width: 0;
+}
+
+.ga-toolbar-filter .thead {
+    color: #5f6368;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ga-toolbar-filter .filter-input-container {
+    min-width: 0;
+}
+
+.ga-toolbar-filter .field {
+    min-width: 160px;
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #1a73e8;
+}
+
+.ga-toolbar-filter .filter-selector-dropdown {
+    top: calc(100% + 12px);
+    left: 84px;
+}
+
+.ga-toolbar-filter .filter-value-modal {
+    top: calc(100% + 12px);
+    left: 84px;
+}
+
+.ga-toolbar-filter .filter-value-btn.apply-btn {
+    color: #1a73e8;
+}
+
+.ga-toolbar-filter .filter-value-btn.apply-btn:hover {
+    color: #174ea6;
 }
 
 .ga-top-arrow-drop-down {
@@ -1972,6 +2069,73 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     }
 }
 
+.ga-table-skeleton-row td {
+    position: relative;
+    padding: 12px 8px;
+}
+
+.ga-table-skeleton-cell {
+    display: block;
+    height: 14px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #e8eaed 0%, #f8f9fa 45%, #e8eaed 100%);
+    background-size: 220% 100%;
+    animation: ga-loading-shimmer 1.0s ease-in-out infinite;
+}
+
+.ga-table-skeleton-row .select-col .ga-table-skeleton-cell {
+    width: 18px;
+    height: 18px;
+    border-radius: 2px;
+}
+
+.ga-table-skeleton-row .state-col .ga-table-skeleton-cell {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.ga-table-skeleton-row .name-col .ga-table-skeleton-cell {
+    width: 70%;
+    margin-left: 24px;
+}
+
+.ga-table-skeleton-row .name-col .ga-table-skeleton-cell:nth-child(2) {
+    width: 50%;
+    height: 10px;
+    margin-top: 6px;
+    margin-left: 24px;
+}
+
+.ga-table-skeleton-row .budget-col .ga-table-skeleton-cell {
+    width: 60%;
+}
+
+.ga-table-skeleton-row td:nth-child(n+5) .ga-table-skeleton-cell {
+    width: 40px;
+}
+
+.ga-hidden-row {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+.ga-total-row-hidden .total-row {
+    opacity: 0;
+}
+
+.ga-data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+}
+
+.ga-data-table thead th {
+    border-bottom: 1px solid #dadce0;
+    font-weight: 500;
+}
+
 .ga-policy-alert {
     height: 42px;
     display: flex;
@@ -1991,7 +2155,32 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
 .ga-table-scroll {
     width: 100%;
-    overflow-x: auto;
+    overflow: auto;
+    max-height: calc(100vh - 240px);
+    position: relative;
+}
+
+.ga-table-scroll-inner {
+    overflow: visible;
+    max-height: none;
+}
+
+.ga-table-panel--campaigns .ga-table-scroll,
+.ga-table-panel--campaigns .ga-table-scroll-inner {
+    overflow: visible;
+    max-height: none;
+}
+
+.ga-data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+}
+
+.ga-data-table thead th {
+    border-bottom: 1px solid #dadce0;
+    font-weight: 500;
 }
 
 .ga-data-table {
@@ -2042,12 +2231,106 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     text-align: left;
 }
 
+.ga-data-table.campaigns {
+    --ga-campaign-select-col-width: 42px;
+    --ga-campaign-state-col-width: 46px;
+    --ga-campaign-pinned-width: 388px;
+}
+
+.ga-data-table.campaigns thead {
+    position: sticky;
+    top: 184px;
+    z-index: 30;
+}
+
+.ga-data-table.campaigns thead th {
+    position: sticky;
+    top: 184px;
+    z-index: 31;
+}
+
+.ga-data-table.campaigns th.name-col .ga-sort-header {
+    justify-content: flex-start;
+}
+
+.ga-data-table.campaigns th.select-col,
+.ga-data-table.campaigns td.select-col,
+.ga-data-table.campaigns .draft-row td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    z-index: 22;
+    background: #fff;
+}
+
+.ga-data-table.campaigns th.state-col,
+.ga-data-table.campaigns td.state-col,
+.ga-data-table.campaigns .draft-row td:nth-child(2) {
+    position: sticky;
+    left: var(--ga-campaign-select-col-width);
+    z-index: 22;
+    background: #fff;
+}
+
+.ga-data-table.campaigns th.name-col,
+.ga-data-table.campaigns td.name-col,
+.ga-data-table.campaigns .draft-row td:nth-child(3) {
+    position: sticky;
+    left: calc(var(--ga-campaign-select-col-width) + var(--ga-campaign-state-col-width));
+    z-index: 22;
+    background: #fff;
+    box-shadow: 1px 0 0 #dadce0;
+}
+
+.ga-data-table.campaigns thead th.select-col,
+.ga-data-table.campaigns thead th.state-col,
+.ga-data-table.campaigns thead th.name-col {
+    z-index: 34;
+}
+
+.ga-data-table.campaigns .draft-row td:nth-child(-n+3) {
+    z-index: 24;
+}
+
+.ga-data-table.campaigns .total-row td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 21;
+    background: #f8f9fa;
+    box-shadow: 1px 0 0 #dadce0;
+}
+
+.ga-data-table.campaigns tr:hover td.select-col,
+.ga-data-table.campaigns tr:hover td.state-col,
+.ga-data-table.campaigns tr:hover td.name-col {
+    background: #f8fafd;
+}
+
+.ga-data-table.campaigns .draft-row:hover td {
+    background: #e6f4ea;
+}
+
 .ga-data-table.adgroups .name-col {
     min-width: 260px;
 }
 
 .ga-data-table.assets .name-col {
     min-width: 320px;
+}
+
+.ga-data-table.assets .ga-assets-toolbar-row th {
+    height: 56px;
+    padding: 0;
+    text-align: left;
+    background: #fff;
+    z-index: 12;
+}
+
+.ga-data-table.assets .ga-assets-toolbar-row .ga-table-toolbar {
+    position: static;
+    top: auto;
+    left: auto;
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(60, 64, 67, 0.16);
 }
 
 .ga-data-table.assets th.name-col,

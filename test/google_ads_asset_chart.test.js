@@ -45,11 +45,22 @@ test('ad assets page renders a middle performance chart with chart controls', ()
 });
 
 test('ad assets table filter toolbar stays pinned while scrolling', () => {
+  const template = fs.readFileSync(path.join(__dirname, '..', 'views', 'google_ads.ejs'), 'utf8');
   const css = fs.readFileSync(path.join(__dirname, '..', 'public', 'google_ads.css'), 'utf8');
+  const assetsTableIndex = template.indexOf('class="ga-data-table assets"');
+  const assetsHeaderIndex = template.indexOf('<span>Asset</span>', assetsTableIndex);
+  const assetsToolbarIndex = template.indexOf('class="ga-assets-toolbar-row"', assetsTableIndex);
+  const assetsBodyIndex = template.indexOf('<tbody>', assetsTableIndex);
 
+  assert.ok(assetsTableIndex >= 0);
+  assert.ok(assetsToolbarIndex > assetsTableIndex);
+  assert.ok(assetsHeaderIndex > assetsToolbarIndex);
+  assert.ok(assetsBodyIndex > assetsHeaderIndex);
+  assert.match(template, /v-if="pageMode !== 'adassets'"\s+class="ga-table-toolbar"/);
   assert.match(css, /\.ga-table-toolbar\s*\{[^}]*position:\s*sticky;/s);
   assert.match(css, /\.ga-table-panel--adassets\s+\.ga-table-toolbar\s*\{[^}]*top:\s*158px;/s);
   assert.match(css, /\.ga-table-panel--adassets\s+\.ga-table-toolbar\s*\{[^}]*z-index:\s*15;/s);
+  assert.match(css, /\.ga-data-table\.assets\s+\.ga-assets-toolbar-row\s+\.ga-table-toolbar\s*\{[^}]*position:\s*static;/s);
   assert.match(css, /\.ga-asset-chart-controls\s*\{[^}]*pointer-events:\s*none;/s);
   assert.match(css, /\.ga-chart-select,\s*\.ga-chart-tool\s*\{[^}]*pointer-events:\s*auto;/s);
 });
