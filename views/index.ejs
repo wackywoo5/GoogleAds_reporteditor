@@ -311,9 +311,12 @@
             </div>
             <div class="compare-controls">
                 <div class="all_accounts">
-                    <input type="text" v-model="accountText" @input="saveAccountText" class="account-input"
-                        placeholder="2 accounts">
-                    <span class="material-symbols-outlined">Edit</span>
+                    <button type="button" class="account-count-button" @click="openAccountPicker">
+                        {{ accountText }}
+                    </button>
+                    <button type="button" class="account-edit-button" aria-label="Select accounts" @click="openAccountPicker">
+                        <span class="material-symbols-outlined">Edit</span>
+                    </button>
                 </div>
                 <div class="divider _ngcontent-awn-GINSU-22"></div>
                 <div class="date-select" ref="dateSelectRef">
@@ -501,6 +504,64 @@
                 </div>
         </div>
 
+        </transition>
+
+
+        <transition name="account-picker">
+            <div v-if="showAccountPicker" class="account-picker-overlay" role="dialog" aria-modal="true"
+                aria-label="Select accounts">
+                <div class="account-picker-dialog" @click.stop>
+                    <div class="account-picker-header">
+                        <div class="account-picker-select">
+                            <span>Select from:</span>
+                            <button type="button" class="account-picker-source">
+                                Accounts
+                                <span class="material-symbols-outlined">arrow_drop_down</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="account-picker-body">
+                        <section class="account-picker-left" aria-label="Available accounts">
+                            <div class="account-picker-search">
+                                <span>Search</span>
+                                <span class="material-symbols-outlined">search</span>
+                            </div>
+                            <label class="account-picker-row account-picker-row-all">
+                                <input type="checkbox" :checked="isAllAccountsSelected" @change="setAllDraftAccounts">
+                                <span class="account-picker-check" aria-hidden="true"></span>
+                                <span>Select all</span>
+                            </label>
+                            <label v-for="account in filteredAccountOptions" :key="account.id"
+                                class="account-picker-row">
+                                <input type="checkbox" :checked="isDraftAccountSelected(account.id)"
+                                    @change="toggleDraftAccount(account.id)">
+                                <span class="account-picker-check" aria-hidden="true"></span>
+                                <span>{{ account.label }}</span>
+                                <span class="account-picker-row-id">{{ account.id }}</span>
+                            </label>
+                        </section>
+                        <section class="account-picker-right" aria-label="Selected accounts">
+                            <div class="account-picker-selected-head">
+                                <span>{{ draftSelectedCount }} selected</span>
+                                <button type="button" @click="clearDraftAccounts">Clear all</button>
+                            </div>
+                            <div v-for="account in selectedAccountItems" :key="account.id"
+                                class="account-picker-selected-row">
+                                <span>{{ account.label }}</span>
+                                <span>{{ account.id }}</span>
+                                <button type="button" class="account-picker-remove"
+                                    :aria-label="'Remove ' + account.label" @click="removeDraftAccount(account.id)">
+                                    <span class="material-symbols-outlined">cancel</span>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="account-picker-actions">
+                        <button type="button" @click="closeAccountPicker">Cancel</button>
+                        <button type="button" @click="saveAccountSelection">Save</button>
+                    </div>
+                </div>
+            </div>
         </transition>
 
 

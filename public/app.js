@@ -2,6 +2,16 @@ const { createApp } = Vue;
 
 createApp({
     data() {
+        const defaultSelectedAccounts = ['680-644-5446', '921-239-0750'];
+        let savedSelectedAccounts = defaultSelectedAccounts;
+        try {
+            const parsed = JSON.parse(localStorage.getItem('selectedAccounts') || 'null');
+            if (Array.isArray(parsed) && parsed.every(account => typeof account === 'string')) {
+                savedSelectedAccounts = parsed;
+            }
+        } catch (error) {
+            savedSelectedAccounts = defaultSelectedAccounts;
+        }
         const defaultColumnWidths = {
             campaign: 300,
             campaignId: 150,
@@ -89,7 +99,25 @@ createApp({
             resizingColumn: '',
             selectAll: false,
             filterText: localStorage.getItem('filterText') || '',
-            accountText: localStorage.getItem('accountText') || '2 accounts',
+            accountOptions: [
+                { id: '680-644-5446', label: '680-644-5446' },
+                { id: '921-239-0750', label: '921-239-0750' },
+                { id: '403-118-9021', label: '403-118-9021' },
+                { id: '517-882-1149', label: '517-882-1149' },
+                { id: '208-771-3064', label: '208-771-3064' },
+                { id: '735-420-8890', label: '735-420-8890' },
+                { id: '144-590-6728', label: '144-590-6728' },
+                { id: '856-301-4472', label: '856-301-4472' },
+                { id: '612-947-0358', label: '612-947-0358' },
+                { id: '309-685-2216', label: '309-685-2216' },
+                { id: '774-230-9185', label: '774-230-9185' },
+                { id: '458-109-7632', label: '458-109-7632' }
+            ],
+            selectedAccounts: savedSelectedAccounts,
+            draftSelectedAccounts: [...savedSelectedAccounts],
+            accountSearchText: '',
+            showAccountPicker: false,
+            accountText: localStorage.getItem('accountText') || `${savedSelectedAccounts.length} accounts`,
             campaigns: [
                 {
                     campaign: '0254-PH Space Race-Kilay',
@@ -118,6 +146,21 @@ createApp({
         }
     },
     computed: {
+        selectedAccountItems() {
+            return this.accountOptions.filter(account => this.draftSelectedAccounts.includes(account.id));
+        },
+        filteredAccountOptions() {
+            const search = this.accountSearchText.trim().toLowerCase();
+            if (!search) return this.accountOptions;
+            return this.accountOptions.filter(account => account.label.toLowerCase().includes(search));
+        },
+        isAllAccountsSelected() {
+            return this.accountOptions.length > 0
+                && this.accountOptions.every(account => this.draftSelectedAccounts.includes(account.id));
+        },
+        draftSelectedCount() {
+            return this.draftSelectedAccounts.length;
+        },
         filteredCampaigns() {
             let result = this.campaigns;
             if (this.startDate && this.endDate) {
@@ -679,6 +722,47 @@ createApp({
         clearAccountText() {
             this.accountText = '2 accounts';
             localStorage.removeItem('accountText');
+        },
+        formatAccountText(count) {
+            return `${count} ${count === 1 ? 'account' : 'accounts'}`;
+        },
+        openAccountPicker() {
+            this.draftSelectedAccounts = [...this.selectedAccounts];
+            this.accountSearchText = '';
+            this.showAccountPicker = true;
+        },
+        closeAccountPicker() {
+            this.draftSelectedAccounts = [...this.selectedAccounts];
+            this.accountSearchText = '';
+            this.showAccountPicker = false;
+        },
+        isDraftAccountSelected(accountId) {
+            return this.draftSelectedAccounts.includes(accountId);
+        },
+        toggleDraftAccount(accountId) {
+            if (this.isDraftAccountSelected(accountId)) {
+                this.draftSelectedAccounts = this.draftSelectedAccounts.filter(id => id !== accountId);
+                return;
+            }
+            this.draftSelectedAccounts = [...this.draftSelectedAccounts, accountId];
+        },
+        removeDraftAccount(accountId) {
+            this.draftSelectedAccounts = this.draftSelectedAccounts.filter(id => id !== accountId);
+        },
+        setAllDraftAccounts() {
+            this.draftSelectedAccounts = this.isAllAccountsSelected
+                ? []
+                : this.accountOptions.map(account => account.id);
+        },
+        clearDraftAccounts() {
+            this.draftSelectedAccounts = [];
+        },
+        saveAccountSelection() {
+            this.selectedAccounts = [...this.draftSelectedAccounts];
+            this.accountText = this.formatAccountText(this.selectedAccounts.length);
+            localStorage.setItem('selectedAccounts', JSON.stringify(this.selectedAccounts));
+            localStorage.setItem('accountText', this.accountText);
+            this.showAccountPicker = false;
         },
         parseLocalDate(value) {
             if (!value) return null;

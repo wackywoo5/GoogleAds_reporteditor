@@ -149,6 +149,42 @@ test('refreshing report editor opens the generate report side panel', async () =
   await refreshPromise;
 });
 
+test('report editor account selector keeps selected accounts in the right panel until saved', () => {
+  const template = fs.readFileSync(path.join(__dirname, '..', 'views', 'index.ejs'), 'utf8');
+  const { config } = loadReportEditorAppConfig();
+  const context = {
+    ...config.data(),
+    ...config.methods
+  };
+
+  assert.match(template, /class="account-picker-dialog"/);
+  assert.match(template, /Select from:/);
+  assert.match(template, /v-for="account in selectedAccountItems"/);
+  assert.match(template, /@click="openAccountPicker"/);
+  const styles = fs.readFileSync(path.join(__dirname, '..', 'public', 'style.css'), 'utf8');
+  assert.match(styles, /\.account-picker-dialog\s*\{[^}]*width:\s*min\(746px,\s*calc\(100vw - 48px\)\);[^}]*height:\s*min\(480px,\s*calc\(100vh - 48px\)\);/s);
+
+  config.methods.openAccountPicker.call(context);
+  assert.equal(context.showAccountPicker, true);
+  assert.ok(context.accountOptions.length >= 10);
+  assert.ok(context.accountOptions.some(account => account.id === '403-118-9021'));
+  assert.deepEqual(Array.from(context.draftSelectedAccounts), ['680-644-5446', '921-239-0750']);
+
+  config.methods.toggleDraftAccount.call(context, '680-644-5446');
+  assert.deepEqual(Array.from(context.draftSelectedAccounts), ['921-239-0750']);
+
+  config.methods.toggleDraftAccount.call(context, '680-644-5446');
+  assert.deepEqual(Array.from(context.draftSelectedAccounts), ['921-239-0750', '680-644-5446']);
+
+  config.methods.removeDraftAccount.call(context, '921-239-0750');
+  assert.deepEqual(Array.from(context.draftSelectedAccounts), ['680-644-5446']);
+
+  config.methods.saveAccountSelection.call(context);
+  assert.deepEqual(Array.from(context.selectedAccounts), ['680-644-5446']);
+  assert.equal(context.accountText, '1 account');
+  assert.equal(context.showAccountPicker, false);
+});
+
 test('opening and changing the report editor date picker jumps to selected date without smooth scrolling', () => {
   const { config, sandbox } = loadReportEditorAppConfig();
   const scrollIntoViewCalls = [];
