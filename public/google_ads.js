@@ -1739,6 +1739,40 @@ createApp({
                 this.syncGoogleAdsRoute(`${window.location.pathname}${window.location.search || ''}`, { push: false });
             }, PAGE_ROUTE_TRANSITION_DELAY);
         },
+        handleAnyClick(event) {
+            if (!(event.target instanceof Element)) return;
+            if (event.__googleAdsDelayedClick) return;
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            const target = event.target;
+            const delay = 500 + Math.floor(Math.random() * 1500);
+
+            const delayedEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                detail: event.detail,
+                screenX: event.screenX,
+                screenY: event.screenY,
+                clientX: event.clientX,
+                clientY: event.clientY,
+                ctrlKey: event.ctrlKey,
+                shiftKey: event.shiftKey,
+                altKey: event.altKey,
+                metaKey: event.metaKey,
+                button: event.button,
+                buttons: event.buttons,
+                relatedTarget: event.relatedTarget
+            });
+
+            delayedEvent.__googleAdsDelayedClick = true;
+
+            setTimeout(() => {
+                target.dispatchEvent(delayedEvent);
+            }, delay);
+        },
         switchPage(mode) {
             this.navigateToGoogleAdsRoute(`/aw/${mode}`);
         }
@@ -1748,6 +1782,7 @@ createApp({
         this.hideGoogleAdsBootLoader();
         document.addEventListener('click', this.closeDropdown);
         document.addEventListener('click', this.handleClickOutside);
+        document.addEventListener('click', this.handleAnyClick, true);
         window.addEventListener('popstate', this.handlePopState);
 
         // Add scroll listener for hiding context bar
@@ -1759,6 +1794,7 @@ createApp({
     beforeUnmount() {
         document.removeEventListener('click', this.closeDropdown);
         document.removeEventListener('click', this.handleClickOutside);
+        document.removeEventListener('click', this.handleAnyClick, true);
         window.removeEventListener('popstate', this.handlePopState);
 
         // Remove scroll listener
