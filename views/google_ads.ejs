@@ -12,6 +12,11 @@
     </script>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/google_ads.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
+        rel="stylesheet">
 </head>
 
 <body class="ga-body">
@@ -187,7 +192,8 @@
                     </button>
                 </div>
                 <div class="ga-sidebar-group" href="#">
-                    <button class="ga-sidebar-group-title" type="button">
+                    <button class="ga-sidebar-group-title" type="button" :class="{ active: pageMode === 'recommendations' }" href="#"
+                        @click="switchPage('recommendations')">
                         <span data-tooltip="Recommendations">Recommendations</span>
                     </button>
                 </div>
