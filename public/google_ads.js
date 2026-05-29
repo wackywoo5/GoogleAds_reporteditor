@@ -30,6 +30,8 @@ function getPageModeFromPath(pathname) {
     if (pathname.includes('/reporteditor')) return 'reporteditor';
     if (pathname.includes('/overview')) return 'overview';
     if (pathname.includes('/recommendations')) return 'recommendations';
+    if (pathname.includes('/insights')) return 'insights';
+    if (pathname.includes('/brandreport')) return 'brandreport';
     return 'campaigns';
 }
 
@@ -358,6 +360,8 @@ createApp({
             if (this.pageMode === 'reporteditor') return 'Report editor';
             if (this.pageMode === 'overview') return 'Overview';
             if (this.pageMode === 'recommendations') return 'Recommendations';
+            if (this.pageMode === 'insights') return 'Insights';
+            if (this.pageMode === 'brandreport') return 'Brand Report';
             return 'Campaigns';
         },
         totals() {
