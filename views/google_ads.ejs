@@ -12,6 +12,7 @@
     </script>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/google_ads.css">
+    <link rel="stylesheet" href="/css/google_ads_w.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -210,7 +211,14 @@
                             'expand_more' }}</span>
                     </button>
                     <div class="ga-sidebar-submenu">
-                        <a class="ga-sidebar-link" href="#" data-tooltip="Brand report">Brand report</a>
+                        <button class="ga-sidebar-link-1" type="button" :class="{ active: pageMode === 'insights' }"
+                            href="#" @click="switchPage('insights')">
+                            <span data-tooltip="Insights">Insights</span>
+                        </button>
+                        <button class="ga-sidebar-link-1" type="button" :class="{ active: pageMode === 'brandreport' }"
+                            href="#" @click="switchPage('brandreport')">
+                            <span data-tooltip="Brand report">Brand report</span>
+                        </button>
                         <a class="ga-sidebar-link" href="#" data-tooltip="When and where ads showed">When and where
                             ads<br>showed</a>
                         <button class="ga-sidebar-link-1" type="button" :class="{ active: pageMode === 'reporteditor' }"
@@ -313,7 +321,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="pageMode !== 'campaigns' && pageMode !== 'reporteditor' && pageMode !== 'overview' && pageMode !== 'recommendations'"
+                    <div v-if="pageMode !== 'campaigns' && pageMode !== 'reporteditor' && pageMode !== 'overview' && pageMode !== 'recommendations' && pageMode !== 'insights' && pageMode !== 'brandreport'"
                         class="ga-state-line">
                         <span :class="['ga-dot', selectedCampaignStatusClass]"></span>
                         <span>{{ selectedCampaignStateLabel }}</span>
@@ -332,7 +340,7 @@
                         </a>
                     </div>
                     <section
-                        v-if="pageMode === 'campaigns' || pageMode === 'reporteditor' || pageMode === 'overview' || pageMode === 'recommendations'"
+                        v-if="pageMode === 'campaigns' || pageMode === 'reporteditor' || pageMode === 'overview' || pageMode === 'recommendations' || pageMode === 'insights' || pageMode === 'brandreport'"
                         class="ga-page-filter-row">
                         <span>Filters</span>
                         <button class="ga-filter-badge" type="button">Campaign status: All</button>
@@ -354,6 +362,9 @@
                     </div>
                     <div v-if="pageMode === 'recommendations'">
                         <%- include('pages/recommendations', { component: 'header' }) %>
+                    </div>
+                    <div v-if="pageMode === 'brandreport'">
+                        <%- include('pages/brand_report', { component: 'header' }) %>
                     </div>
                     <div v-if="pageMode === 'campaigns' || pageMode === 'adassets' || pageMode === 'overview'"
                         class="ga-date-row">
@@ -873,7 +884,7 @@
 
                 </div>
                 <template
-                    v-if="pageMode !== 'reporteditor' && pageMode !== 'overview' && pageMode !== 'recommendations'">
+                    v-if="pageMode !== 'reporteditor' && pageMode !== 'overview' && pageMode !== 'recommendations' && pageMode !== 'insights' && pageMode !== 'brandreport'">
                     <div v-if="pageMode === 'campaigns' || pageMode === 'adassets'" class="ga-tabs">
                         <button class="active" type="button">{{ pageMode === 'adassets' ? 'Assets' : 'Campaigns'
                             }}</button>
@@ -1495,6 +1506,21 @@
                         <p>&copy; Google, 2026.</p>
                     </footer>
                 </template>
+                <!-- Page content -->
+                <div v-if="pageMode === 'insights'">
+                    <%- include('pages/insights', { component: 'content' }) %>
+                </div>
+                <div v-if="pageMode === 'brandreport'">
+                    <%- include('pages/brand_report', { component: 'content' }) %>
+                </div>
+
+                <!-- Page footer -->
+                <div v-if="pageMode === 'insights'">
+                    <%- include('pages/insights', { component: 'footer' }) %>
+                </div>
+                <div v-if="pageMode === 'brandreport'">
+                    <%- include('pages/brand_report', { component: 'footer' }) %>
+                </div>
             </main>
         </div>
 
