@@ -124,7 +124,7 @@ router.get('/api/adassets/plan1', async (ctx) => {
       assetType: 'Image',
       source: `${i+1} - ${getRandomAssetSourceTime()}_1.870`,
       status: 'Eligible',
-      performance: 'Pending',
+      performance: getRandomString(performanceArr),
       image: `/adassets/plan1/img${i}.jpg`,
       share: Math.random() * 0.3 + 0.02
     });
@@ -140,7 +140,7 @@ router.get('/api/adassets/plan1', async (ctx) => {
       asset: text || `Headline ${i}`,
       assetType: 'Headline',
       status: 'Eligible',
-      performance: 'Pending',
+      performance: getRandomString(performanceArr),
       headlineText: text || `Headline ${i}`,
       share: Math.random() * 0.3 + 0.02
     });
@@ -156,7 +156,7 @@ router.get('/api/adassets/plan1', async (ctx) => {
       asset: text || `Description ${i}`,
       assetType: 'Description',
       status: 'Eligible',
-      performance: 'Pending',
+      performance: getRandomString(performanceArr),
       descriptionText: text || `Description ${i}`,
       share: Math.random() * 0.3 + 0.02
     });
