@@ -25,7 +25,11 @@ function getRandomAssetSourceTime() {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
+const performanceArr = ['Learning','Good', 'Good','Good','Good','Good','Good','Best','Best','Best','Low'];
 
+function getRandomString(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 const app = new Koa();
 const router = new Router();
 const transform = require('./transform');
