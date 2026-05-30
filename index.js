@@ -25,7 +25,11 @@ function getRandomAssetSourceTime() {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
+const performanceArr = ['Learning','Good', 'Good','Good','Good','Good','Good','Best','Best','Best','Low'];
 
+function getRandomString(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 const app = new Koa();
 const router = new Router();
 const transform = require('./transform');
@@ -120,7 +124,7 @@ router.get('/api/adassets/plan1', async (ctx) => {
       assetType: 'Image',
       source: `${i+1} - ${getRandomAssetSourceTime()}_1.870`,
       status: 'Eligible',
-      performance: 'Pending',
+      performance: getRandomString(performanceArr),
       image: `/adassets/plan1/img${i}.jpg`,
       share: Math.random() * 0.3 + 0.02
     });
@@ -136,7 +140,7 @@ router.get('/api/adassets/plan1', async (ctx) => {
       asset: text || `Headline ${i}`,
       assetType: 'Headline',
       status: 'Eligible',
-      performance: 'Pending',
+      performance: getRandomString(performanceArr),
       headlineText: text || `Headline ${i}`,
       share: Math.random() * 0.3 + 0.02
     });
@@ -152,7 +156,7 @@ router.get('/api/adassets/plan1', async (ctx) => {
       asset: text || `Description ${i}`,
       assetType: 'Description',
       status: 'Eligible',
-      performance: 'Pending',
+      performance: getRandomString(performanceArr),
       descriptionText: text || `Description ${i}`,
       share: Math.random() * 0.3 + 0.02
     });
