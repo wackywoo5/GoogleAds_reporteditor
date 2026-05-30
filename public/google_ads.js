@@ -147,6 +147,7 @@ createApp({
             isRefreshing: false,
             isSoftRefreshing: false,
             isRouteLoading: false,
+            isTableLoading: false,
             pageTransitionToken: 0,
             refreshMode: 'full',
             pageSize: 30,
@@ -254,7 +255,7 @@ createApp({
                 },
                 assetSummaryProgress:[0.6,0.6,0.5,0],
             },
-            floatingAddIsFixed: false
+            toolbarPanelIsStuck: false
         };
     },
     computed: {
@@ -847,6 +848,7 @@ createApp({
             this.refreshMode = mode;
             this.isRefreshing = true;
             this.isSoftRefreshing = mode === 'soft';
+            this.isTableLoading = true;
 
             try {
                 await this.$nextTick();
@@ -858,7 +860,9 @@ createApp({
             } finally {
                 this.isRefreshing = false;
                 this.isSoftRefreshing = false;
+                this.isTableLoading = false;
                 this.refreshMode = 'full';
+                this.initTableColumnWidths();
             }
         },
         async loadData() {
@@ -1797,13 +1801,23 @@ createApp({
             const mainElement = document.querySelector('.ga-main');
             if (mainElement) {
                 this.isContextBarHidden = mainElement.scrollTop > 50;
-                
+
                 // Manage floating add button sticky effect
-                const tablePanel = document.querySelector('.ga-table-panel');
+                const tablePanel = document.querySelector('.ga-table-toolbar-panel');
                 if (tablePanel) {
                     const rect = tablePanel.getBoundingClientRect();
-                    // Switch to fixed position when table panel top is above 155px threshold
-                    this.floatingAddIsFixed = rect.top < 155;
+
+                    // Detect when .ga-table-toolbar-panel's sticky is engaged (stuck at top:150px within .ga-main)
+                    const mainRect = mainElement.getBoundingClientRect();
+                    const stuckTop = mainRect.top + 150;
+                    const isStuck = rect.top <= stuckTop + 1;
+                    this.toolbarPanelIsStuck = isStuck;
+
+                    // Move floating button down 35px when panel is stuck
+                    const addBtn = document.querySelector('.ga-floating-add');
+                    if (addBtn) {
+                        addBtn.style.top = isStuck ? '15px' : '';
+                    }
                 }
             }
             if (this.showDatePicker) {
@@ -1811,6 +1825,72 @@ createApp({
                     this.scheduleDatePickerReposition();
                 });
             }
+        },
+
+        // ── Right table header horizontal scroll sync ──
+        onRightTableScroll() {
+            this.handleRightTableScroll();
+        },
+
+        onRightTableScrollAdgroups() {
+            this.handleRightTableScroll();
+        },
+
+        handleRightTableScroll() {
+            const refSuffix = this.pageMode === 'campaigns' ? '' : 'Adgroups';
+            const inner = this.$refs[`scrollRightInner${refSuffix}`];
+            const header = this.$refs[`scrollRightHeader${refSuffix}`];
+            if (inner && header) {
+                header.scrollLeft = inner.scrollLeft;
+            }
+        },
+
+        // ── Initialize and sync table column widths ──
+        initTableColumnWidths() {
+            this.$nextTick(() => {
+                const mode = this.pageMode;
+                if (mode !== 'campaigns' && mode !== 'adgroups') return;
+
+                const refSuffix = mode === 'campaigns' ? '' : 'Adgroups';
+                const inner = this.$refs[`scrollRightInner${refSuffix}`];
+                const header = this.$refs[`scrollRightHeader${refSuffix}`];
+                if (!inner || !header) return;
+
+                // Sync header scroll position to match body
+                header.scrollLeft = inner.scrollLeft;
+
+                // Verify column widths match — measure and copy body col widths to header if needed
+                const bodyTable = inner.querySelector('table.ga-data-table');
+                const headerTable = header.querySelector('table.ga-data-table');
+                if (!bodyTable || !headerTable) return;
+
+                const bodyCols = bodyTable.querySelectorAll('colgroup col');
+                const headerCols = headerTable.querySelectorAll('colgroup col');
+                if (bodyCols.length === 0 || bodyCols.length !== headerCols.length) return;
+
+                let needsSync = false;
+                bodyCols.forEach((bodyCol, i) => {
+                    const headerCol = headerCols[i];
+                    if (!headerCol) return;
+                    const bodyW = bodyCol.getBoundingClientRect().width;
+                    const headerW = headerCol.getBoundingClientRect().width;
+                    if (Math.abs(bodyW - headerW) > 0.5) {
+                        needsSync = true;
+                        headerCol.style.width = `${bodyW}px`;
+                    }
+                });
+
+                if (needsSync) {
+                    void headerTable.offsetHeight;
+                }
+            });
+        },
+
+        resizeHandler() {
+            if (this._resizeTimer) clearTimeout(this._resizeTimer);
+            this._resizeTimer = setTimeout(() => {
+                this.initTableColumnWidths();
+            }, 150);
         },
 
         handleMouseMove(event) {
@@ -1888,10 +1968,12 @@ createApp({
             this.pageTransitionToken = token;
             this.isSoftRefreshing = true;
             this.isRouteLoading = true;
+            this.isTableLoading = true;
             window.setTimeout(() => {
                 if (this.pageTransitionToken === token) {
                     this.isSoftRefreshing = false;
                     this.isRouteLoading = false;
+                    this.isTableLoading = false;
                 }
             }, duration);
             return token;
@@ -1925,6 +2007,7 @@ createApp({
             this.$nextTick(() => {
                 const main = document.querySelector('.ga-main');
                 if (main) main.scrollTop = 0;
+                this.initTableColumnWidths();
             });
         },
         navigateToGoogleAdsRoute(target, event) {
@@ -1987,18 +2070,22 @@ createApp({
         document.addEventListener('click', this.handleClickOutside);
         document.addEventListener('click', this.handleAnyClick, true);
         window.addEventListener('popstate', this.handlePopState);
+        window.addEventListener('resize', this.resizeHandler);
 
         // Add scroll listener for hiding context bar
         const mainElement = document.querySelector('.ga-main');
         if (mainElement) {
             mainElement.addEventListener('scroll', this.handleScroll);
         }
+
+        this.initTableColumnWidths();
     },
     beforeUnmount() {
         document.removeEventListener('click', this.closeDropdown);
         document.removeEventListener('click', this.handleClickOutside);
         document.removeEventListener('click', this.handleAnyClick, true);
         window.removeEventListener('popstate', this.handlePopState);
+        window.removeEventListener('resize', this.resizeHandler);
 
         // Remove scroll listener
         const mainElement = document.querySelector('.ga-main');

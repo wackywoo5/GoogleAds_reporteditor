@@ -851,13 +851,15 @@
 .ga-main.is-soft-refreshing .ga-asset-strength,
 .ga-main.is-soft-refreshing .ga-asset-chart-area,
 .ga-main.is-soft-refreshing .ga-chart-area,
-.ga-main.is-soft-refreshing .ga-table-panel {
+.ga-main.is-soft-refreshing .ga-table-panel,
+.ga-main.is-soft-refreshing .ga-table-toolbar-panel {
     opacity: 0.74;
     filter: saturate(0.92);
     transition: opacity 0.18s ease, filter 0.18s ease;
 }
 
-.ga-main.is-route-loading .ga-table-panel {
+.ga-main.is-route-loading .ga-table-panel,
+.ga-main.is-route-loading .ga-table-toolbar-panel {
     pointer-events: none;
 }
 
@@ -913,6 +915,30 @@
     opacity: 0;
     transform: translateY(-100%);
     pointer-events: none;
+}
+
+.ga-context-bar-skeleton {
+    padding: 4px 0 12px;
+}
+
+.ga-context-bar-skeleton-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.ga-context-bar-skeleton-item-small {
+    display: block;
+    height: 12px;
+    border-radius: 4px;
+    background: #e3e3e3;
+}
+
+.ga-context-bar-skeleton-item {
+    display: block;
+    height: 28px;
+    border-radius: 6px;
+    background: #e3e3e3;
 }
 
 .ga-selectors {
@@ -1090,7 +1116,7 @@
 }
 
 .ga-page-head {
-    min-height: 88px;
+    height: 65px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1933,6 +1959,16 @@
     right: 56px;
 }
 
+.ga-table-toolbar-panel {
+    position: sticky;
+    top: 65px;
+    z-index: 15;
+    margin: 0 28px 0 28px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(60, 64, 67, 0.24);
+    padding-top: 8px;
+}
+
 .ga-table-panel {
     position: relative;
     margin: 0 28px 28px;
@@ -1955,8 +1991,8 @@
     z-index: 10;
 }
 
-.ga-table-panel--refreshing .ga-floating-add,
-.ga-table-panel--refreshing .ga-table-toolbar button {
+.ga-table-toolbar-panel--refreshing .ga-floating-add,
+.ga-table-toolbar-panel--refreshing .ga-table-toolbar button {
     pointer-events: none;
 }
 
@@ -1984,17 +2020,10 @@ button.ga-floating-add {
     /* transition: all 0s ease; */
 }
 
-button.ga-floating-add--fixed {
-    position: fixed;
-    top: 168px;
-    left: 372px;
+button.ga-floating-add.ga-floating-add--stuck {
+    top: 15px;
 }
 
-.ga-table-panel--adassets button.ga-floating-add--fixed {
-    position: fixed;
-    top: 235px;
-    left: 372px;
-}
 
 button.ga-floating-add .material-symbols-outlined {
     font-size: 24px;
@@ -2013,19 +2042,16 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 }
 
 .ga-table-toolbar {
-    position: sticky;
-    top: 88px;
     min-height: 56px;
     border-bottom: 1px solid #dadce0;
     justify-content: space-between;
     padding: 0 0 0 36px;
     align-items: center;
     background: #fff;
-    z-index: 15;
     box-shadow: 0 2px 4px rgba(60, 64, 67, 0.1);
 }
 
-.ga-table-panel--adassets .ga-table-toolbar {
+.ga-table-toolbar-panel--adassets .ga-table-toolbar {
     top: 158px;
     z-index: 15;
     box-shadow: 0 2px 6px rgba(60, 64, 67, 0.16);
@@ -2271,7 +2297,6 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
 .ga-table-scroll {
     width: 100%;
-    overflow-x: auto;
 }
 
 .ga-data-table {
@@ -2431,6 +2456,249 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
 .ga-data-table tr:hover td {
     background: #f8fafd;
+}
+
+/* ── Table loading overlay ── */
+.ga-table-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(2px);
+}
+
+.ga-table-loading-spinner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid #d2e3fc;
+    border-top-color: #1a73e8;
+    animation: ga-refresh-spin 0.7s linear infinite;
+}
+
+/* ── Table skeleton rows ── */
+.ga-table-skeleton-row td {
+    position: relative;
+    padding: 12px 8px;
+}
+
+.ga-table-skeleton-cell {
+    display: block;
+    height: 14px;
+    border-radius: 2px;
+    background: #e8eaed;
+}
+
+.ga-table-skeleton-row .select-col .ga-table-skeleton-cell {
+    width: 18px;
+    height: 18px;
+    border-radius: 2px;
+}
+
+.ga-table-skeleton-row .state-col .ga-table-skeleton-cell {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.ga-table-skeleton-row .name-col .ga-table-skeleton-cell {
+    width: 70%;
+    margin-left: 24px;
+}
+
+.ga-table-skeleton-row .name-col .ga-table-skeleton-cell:nth-child(2) {
+    width: 50%;
+    height: 10px;
+    margin-top: 6px;
+    margin-left: 24px;
+}
+
+.ga-table-skeleton-row .budget-col .ga-table-skeleton-cell {
+    width: 60%;
+}
+
+.ga-table-skeleton-row td:nth-child(n+5) .ga-table-skeleton-cell {
+    width: 40px;
+}
+
+.ga-hidden-row {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+.ga-total-row-hidden .total-row {
+    opacity: 0;
+}
+
+.ga-data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+}
+
+/* ── Split table layout (frozen left + scrollable right) ── */
+.ga-split-table {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+}
+
+/* ── Header row (sticky, outside overflow-hidden containers) ── */
+.ga-frozen-left-header {
+    grid-column: 1;
+    grid-row: 1;
+    position: sticky;
+    top: 128px;
+    z-index: 10;
+    background: #fff;
+}
+
+.ga-frozen-left-header .ga-data-table {
+    table-layout: fixed;
+    width: auto;
+    margin: 0;
+}
+
+.ga-frozen-left-header .ga-data-table thead tr {
+    height: 74px;
+}
+
+.ga-frozen-left-header .ga-data-table thead th {
+    vertical-align: middle;
+}
+
+/* ── Body row ── */
+.ga-frozen-left {
+    grid-column: 1;
+    grid-row: 2;
+    overflow: hidden;
+    box-shadow: 2px 0 4px rgba(60, 64, 67, 0.12);
+}
+
+.ga-frozen-left .ga-data-table {
+    table-layout: fixed;
+    width: auto;
+    margin: 0;
+}
+
+.ga-scroll-right {
+    grid-column: 2;
+    grid-row: 2;
+    overflow: hidden;
+}
+
+.ga-scroll-right-inner {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+}
+
+.ga-scroll-right .ga-data-table {
+    table-layout: fixed;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+}
+
+/* ── Extracted header for right scrollable table ── */
+.ga-scroll-right-header {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 128px;
+    z-index: 10;
+    background: #fff;
+    overflow: hidden;
+}
+
+.ga-scroll-right-header .ga-data-table {
+    table-layout: fixed;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+}
+
+.ga-scroll-right-header .ga-data-table thead tr {
+    height: 74px;
+}
+
+.ga-scroll-right-header .ga-data-table thead th {
+    vertical-align: middle;
+}
+
+/* ── Row height sync between split tables ── */
+.ga-frozen-left .ga-data-table tr,
+.ga-scroll-right .ga-data-table tr {
+    height: 55px;
+}
+
+/* ── Scrollable area horizontal scrollbar ── */
+.ga-scroll-right-inner::-webkit-scrollbar {
+    height: 10px;
+}
+
+.ga-scroll-right-inner::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 0;
+}
+
+.ga-scroll-right-inner::-webkit-scrollbar-thumb {
+    background: #dadce0;
+    border-radius: 0;
+}
+
+.ga-scroll-right-inner::-webkit-scrollbar-thumb:hover {
+    background: #1a73e8;
+}
+
+/* ── Campaign / AdGroup table panel scroll ── */
+.ga-table-panel--adassets .ga-table-scroll {
+    overflow-x: auto;
+}
+
+.ga-table-panel--campaigns .ga-table-scroll-inner,
+.ga-table-panel--adgroups .ga-table-scroll-inner {
+    overflow: visible;
+    max-height: none;
+}
+
+/* ── Hover sync between split tables ── */
+.ga-frozen-left .ga-data-table.campaigns tr:hover td {
+    background: #f8fafd;
+}
+
+.ga-frozen-left .ga-data-table.campaigns .draft-row:hover td {
+    background: #f8fafd;
+}
+
+.ga-frozen-left .ga-data-table.adgroups tr:hover td {
+    background: #f8fafd;
+}
+
+.ga-frozen-left .ga-data-table.adgroups .total-row td {
+    background: #f8f9fa;
+}
+
+.ga-hover-sync td {
+    background: #f8fafd;
+}
+
+.ga-hover-sync.draft-row td {
+    background: #f8fafd;
+}
+
+.ga-hover-sync.total-row td {
+    background: #f8f9fa;
+}
+
+/* ── Draft row height in split tables ── */
+.ga-frozen-left .ga-data-table .draft-row,
+.ga-scroll-right .ga-data-table .draft-row {
+    height: 40px;
 }
 
 .ga-checkbox {
