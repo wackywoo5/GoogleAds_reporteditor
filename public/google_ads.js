@@ -1800,6 +1800,7 @@ createApp({
         handleScroll() {
             const mainElement = document.querySelector('.ga-main');
             if (mainElement) {
+                const wasHidden = this.isContextBarHidden;
                 this.isContextBarHidden = mainElement.scrollTop > 50;
 
                 // Manage floating add button sticky effect
@@ -1819,12 +1820,37 @@ createApp({
                         addBtn.style.top = isStuck ? '15px' : '';
                     }
                 }
+
+                // Recalculate sticky tops on adassets when page-head height changes (context bar show/hide)
+                if (this.pageMode === 'adassets' && wasHidden !== this.isContextBarHidden) {
+                    this.$nextTick(() => this.updateStickyTops());
+                }
             }
             if (this.showDatePicker) {
                 this.$nextTick(() => {
                     this.scheduleDatePickerReposition();
                 });
             }
+        },
+
+        // ── Recalculate sticky top positions for adassets page ──
+        updateStickyTops() {
+            const pageHead = document.querySelector('.ga-page-head');
+            const assetStrength = document.querySelector('.ga-asset-strength');
+            const toolbar = document.querySelector('.ga-table-toolbar-panel');
+            const frozenHeader = document.querySelector('.ga-frozen-left-header');
+            const scrollHeader = document.querySelector('.ga-scroll-right-header');
+
+            if (!pageHead) return;
+
+            const pageHeadH = pageHead.getBoundingClientRect().height;
+            const strengthH = assetStrength ? assetStrength.getBoundingClientRect().height : 0;
+            const toolbarH = toolbar ? toolbar.getBoundingClientRect().height : 0;
+
+            if (assetStrength) assetStrength.style.top = pageHeadH + 'px';
+            if (toolbar) toolbar.style.top = (pageHeadH + strengthH) + 'px';
+            if (frozenHeader) frozenHeader.style.top = (pageHeadH + strengthH + toolbarH) + 'px';
+            if (scrollHeader) scrollHeader.style.top = (pageHeadH + strengthH + toolbarH) + 'px';
         },
 
         // ── Right table header horizontal scroll sync ──
@@ -1836,8 +1862,13 @@ createApp({
             this.handleRightTableScroll();
         },
 
+        onRightTableScrollAssets() {
+            this.handleRightTableScroll();
+        },
+
         handleRightTableScroll() {
-            const refSuffix = this.pageMode === 'campaigns' ? '' : 'Adgroups';
+            const mode = this.pageMode;
+            const refSuffix = mode === 'campaigns' ? '' : mode === 'adgroups' ? 'Adgroups' : 'Assets';
             const inner = this.$refs[`scrollRightInner${refSuffix}`];
             const header = this.$refs[`scrollRightHeader${refSuffix}`];
             if (inner && header) {
@@ -1849,41 +1880,81 @@ createApp({
         initTableColumnWidths() {
             this.$nextTick(() => {
                 const mode = this.pageMode;
-                if (mode !== 'campaigns' && mode !== 'adgroups') return;
+                if (mode !== 'campaigns' && mode !== 'adgroups' && mode !== 'adassets') return;
 
-                const refSuffix = mode === 'campaigns' ? '' : 'Adgroups';
+                const refSuffix = mode === 'campaigns' ? '' : mode === 'adgroups' ? 'Adgroups' : 'Assets';
 
-                // ── Sync RIGHT table column widths ──
+                // ── Fix sticky positions for adassets page (or reset for others) ──
+                if (mode === 'adassets') {
+                    this.updateStickyTops();
+                } else {
+                    const toolbar = document.querySelector('.ga-table-toolbar-panel');
+                    const frozenHeader = document.querySelector('.ga-frozen-left-header');
+                    const scrollHeader = document.querySelector('.ga-scroll-right-header');
+                    const assetStrength = document.querySelector('.ga-asset-strength');
+                    // Reset inline sticky tops so shared elements don't carry over to other pages
+                    if (toolbar) toolbar.style.top = '';
+                    if (frozenHeader) frozenHeader.style.top = '';
+                    if (scrollHeader) scrollHeader.style.top = '';
+                    if (assetStrength) assetStrength.style.top = '';
+                }
+
+                // ── Sync RIGHT table ──
                 const rightInner = this.$refs[`scrollRightInner${refSuffix}`];
                 const rightHeader = this.$refs[`scrollRightHeader${refSuffix}`];
                 if (rightInner && rightHeader) {
-                    rightHeader.scrollLeft = rightInner.scrollLeft;
                     const bodyTable = rightInner.querySelector('table.ga-data-table');
                     const headerTable = rightHeader.querySelector('table.ga-data-table');
                     if (bodyTable && headerTable) {
-                        const bodyCols = bodyTable.querySelectorAll('colgroup col');
+                        // Read colgroup widths from template as ABSOLUTE pixel values
                         const headerCols = headerTable.querySelectorAll('colgroup col');
-                        bodyCols.forEach((bodyCol, i) => {
-                            if (headerCols[i]) {
-                                headerCols[i].style.width = bodyCol.getBoundingClientRect().width + 'px';
-                            }
+                        const bodyCols = bodyTable.querySelectorAll('colgroup col');
+                        const colWidths = [];
+                        headerCols.forEach(col => {
+                            colWidths.push(parseFloat(col.style.width) || 0);
                         });
-                        void headerTable.offsetHeight;
+                        const totalWidth = colWidths.reduce((a, b) => a + b, 0);
+
+                        if (totalWidth > 0) {
+                            // Lock BOTH tables to the sum of colgroup widths (absolute, not scaled)
+                            const lockCss = `table-layout:fixed !important;width:${totalWidth}px !important;min-width:${totalWidth}px !important;max-width:${totalWidth}px !important;`;
+                            headerTable.style.cssText = lockCss;
+                            bodyTable.style.cssText = lockCss;
+
+                            // Set each col width as-is (absolute pixel values)
+                            colWidths.forEach((w, i) => {
+                                if (headerCols[i]) headerCols[i].style.width = w + 'px';
+                                if (bodyCols[i]) bodyCols[i].style.width = w + 'px';
+                            });
+                            void headerTable.offsetHeight;
+                        }
                     }
+                    rightHeader.scrollLeft = rightInner.scrollLeft;
                 }
 
-                // ── Sync LEFT table column widths ──
+                // ── Sync LEFT table ──
                 const leftBody = document.querySelector('.ga-frozen-left table.ga-data-table');
                 const leftHeader = document.querySelector('.ga-frozen-left-header table.ga-data-table');
                 if (leftBody && leftHeader) {
-                    const bodyCols = leftBody.querySelectorAll('colgroup col');
                     const headerCols = leftHeader.querySelectorAll('colgroup col');
-                    bodyCols.forEach((bodyCol, i) => {
-                        if (headerCols[i]) {
-                            headerCols[i].style.width = bodyCol.getBoundingClientRect().width + 'px';
-                        }
+                    const bodyCols = leftBody.querySelectorAll('colgroup col');
+                    const colWidths = [];
+                    headerCols.forEach(col => {
+                        colWidths.push(parseFloat(col.style.width) || 0);
                     });
-                    void leftHeader.offsetHeight;
+                    const totalWidth = colWidths.reduce((a, b) => a + b, 0);
+
+                    if (totalWidth > 0) {
+                        const lockCss = `table-layout:fixed !important;width:${totalWidth}px !important;min-width:${totalWidth}px !important;max-width:${totalWidth}px !important;`;
+                        leftHeader.style.cssText = lockCss;
+                        leftBody.style.cssText = lockCss;
+
+                        colWidths.forEach((w, i) => {
+                            if (headerCols[i]) headerCols[i].style.width = w + 'px';
+                            if (bodyCols[i]) bodyCols[i].style.width = w + 'px';
+                        });
+                        void leftHeader.offsetHeight;
+                    }
                 }
 
                 // ── Hook up hover sync ──

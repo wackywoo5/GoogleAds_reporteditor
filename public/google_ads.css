@@ -2599,8 +2599,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
 .ga-scroll-right .ga-data-table {
     table-layout: fixed;
-    width: max-content;
-    min-width: 100%;
+    width: auto;
     margin: 0;
 }
 
@@ -2612,12 +2611,18 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     top: 128px;
     z-index: 10;
     background: #fff;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* IE / Edge */
+}
+.ga-scroll-right-header::-webkit-scrollbar {
+    display: none;                  /* Chrome / Safari */
 }
 
 .ga-scroll-right-header .ga-data-table {
     table-layout: fixed;
-    width: max-content;
+    width: auto;
     min-width: 100%;
     margin: 0;
 }
