@@ -1852,38 +1852,83 @@ createApp({
                 if (mode !== 'campaigns' && mode !== 'adgroups') return;
 
                 const refSuffix = mode === 'campaigns' ? '' : 'Adgroups';
-                const inner = this.$refs[`scrollRightInner${refSuffix}`];
-                const header = this.$refs[`scrollRightHeader${refSuffix}`];
-                if (!inner || !header) return;
 
-                // Sync header scroll position to match body
-                header.scrollLeft = inner.scrollLeft;
-
-                // Verify column widths match — measure and copy body col widths to header if needed
-                const bodyTable = inner.querySelector('table.ga-data-table');
-                const headerTable = header.querySelector('table.ga-data-table');
-                if (!bodyTable || !headerTable) return;
-
-                const bodyCols = bodyTable.querySelectorAll('colgroup col');
-                const headerCols = headerTable.querySelectorAll('colgroup col');
-                if (bodyCols.length === 0 || bodyCols.length !== headerCols.length) return;
-
-                let needsSync = false;
-                bodyCols.forEach((bodyCol, i) => {
-                    const headerCol = headerCols[i];
-                    if (!headerCol) return;
-                    const bodyW = bodyCol.getBoundingClientRect().width;
-                    const headerW = headerCol.getBoundingClientRect().width;
-                    if (Math.abs(bodyW - headerW) > 0.5) {
-                        needsSync = true;
-                        headerCol.style.width = `${bodyW}px`;
+                // ── Sync RIGHT table column widths ──
+                const rightInner = this.$refs[`scrollRightInner${refSuffix}`];
+                const rightHeader = this.$refs[`scrollRightHeader${refSuffix}`];
+                if (rightInner && rightHeader) {
+                    rightHeader.scrollLeft = rightInner.scrollLeft;
+                    const bodyTable = rightInner.querySelector('table.ga-data-table');
+                    const headerTable = rightHeader.querySelector('table.ga-data-table');
+                    if (bodyTable && headerTable) {
+                        const bodyCols = bodyTable.querySelectorAll('colgroup col');
+                        const headerCols = headerTable.querySelectorAll('colgroup col');
+                        bodyCols.forEach((bodyCol, i) => {
+                            if (headerCols[i]) {
+                                headerCols[i].style.width = bodyCol.getBoundingClientRect().width + 'px';
+                            }
+                        });
+                        void headerTable.offsetHeight;
                     }
-                });
-
-                if (needsSync) {
-                    void headerTable.offsetHeight;
                 }
+
+                // ── Sync LEFT table column widths ──
+                const leftBody = document.querySelector('.ga-frozen-left table.ga-data-table');
+                const leftHeader = document.querySelector('.ga-frozen-left-header table.ga-data-table');
+                if (leftBody && leftHeader) {
+                    const bodyCols = leftBody.querySelectorAll('colgroup col');
+                    const headerCols = leftHeader.querySelectorAll('colgroup col');
+                    bodyCols.forEach((bodyCol, i) => {
+                        if (headerCols[i]) {
+                            headerCols[i].style.width = bodyCol.getBoundingClientRect().width + 'px';
+                        }
+                    });
+                    void leftHeader.offsetHeight;
+                }
+
+                // ── Hook up hover sync ──
+                this._syncTableHover();
             });
+        },
+
+        // ── Hover sync between left and right tables ──
+        _syncTableHover() {
+            const frozenBody = document.querySelector('.ga-frozen-left table.ga-data-table');
+            const scrollBody = document.querySelector('.ga-scroll-right-inner table.ga-data-table');
+            if (!frozenBody || !scrollBody) return;
+
+            // Remove old listeners
+            if (this._hoverSyncCleanup) this._hoverSyncCleanup();
+
+            const syncHover = (table, otherTable) => {
+                const onEnter = (e) => {
+                    const tr = e.target.closest('tr');
+                    if (!tr) return;
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    const idx = rows.indexOf(tr);
+                    if (idx < 0) return;
+                    const otherRows = otherTable.querySelectorAll('tbody tr');
+                    if (otherRows[idx]) {
+                        otherRows[idx].classList.add('ga-hover-sync');
+                    }
+                };
+                const onLeave = () => {
+                    otherTable.querySelectorAll('tr.ga-hover-sync').forEach(r => r.classList.remove('ga-hover-sync'));
+                };
+                table.addEventListener('mouseover', onEnter, true);
+                table.addEventListener('mouseout', onLeave, true);
+                return { onEnter, onLeave };
+            };
+
+            const cleanup1 = syncHover(frozenBody, scrollBody);
+            const cleanup2 = syncHover(scrollBody, frozenBody);
+
+            this._hoverSyncCleanup = () => {
+                frozenBody.removeEventListener('mouseover', cleanup1.onEnter, true);
+                frozenBody.removeEventListener('mouseout', cleanup1.onLeave, true);
+                scrollBody.removeEventListener('mouseover', cleanup2.onEnter, true);
+                scrollBody.removeEventListener('mouseout', cleanup2.onLeave, true);
+            };
         },
 
         resizeHandler() {
@@ -2086,6 +2131,9 @@ createApp({
         document.removeEventListener('click', this.handleAnyClick, true);
         window.removeEventListener('popstate', this.handlePopState);
         window.removeEventListener('resize', this.resizeHandler);
+
+        // Clean up hover sync
+        if (this._hoverSyncCleanup) this._hoverSyncCleanup();
 
         // Remove scroll listener
         const mainElement = document.querySelector('.ga-main');

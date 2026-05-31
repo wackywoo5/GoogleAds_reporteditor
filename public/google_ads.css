@@ -2667,19 +2667,23 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 }
 
 /* ── Hover sync between split tables ── */
-.ga-frozen-left .ga-data-table.campaigns tr:hover td {
+.ga-frozen-left .ga-data-table.campaigns tr:hover td,
+.ga-scroll-right .ga-data-table.campaigns tr:hover td {
     background: #f8fafd;
 }
 
-.ga-frozen-left .ga-data-table.campaigns .draft-row:hover td {
+.ga-frozen-left .ga-data-table.campaigns .draft-row:hover td,
+.ga-scroll-right .ga-data-table.campaigns .draft-row:hover td {
     background: #f8fafd;
 }
 
-.ga-frozen-left .ga-data-table.adgroups tr:hover td {
+.ga-frozen-left .ga-data-table.adgroups tr:hover td,
+.ga-scroll-right .ga-data-table.adgroups tr:hover td {
     background: #f8fafd;
 }
 
-.ga-frozen-left .ga-data-table.adgroups .total-row td {
+.ga-frozen-left .ga-data-table.adgroups .total-row td,
+.ga-scroll-right .ga-data-table.adgroups .total-row td {
     background: #f8f9fa;
 }
 
