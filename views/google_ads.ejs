@@ -1724,8 +1724,8 @@
                                                 :class="{ 'ga-hidden-row': isTableLoading }">
                                                 <td class="asset-cell name-col">
                                                     <span class="ga-status-dot enabled"></span>
-                                                    <button v-if="asset.assetType === 'Image'" type="button" class="asset-thumb"
-                                                        @click="openImagePreview(asset)">
+                                                    <button v-if="asset.assetType === 'Image'" type="button"
+                                                        class="asset-thumb" @click="openImagePreview(asset)">
                                                         <img :src="asset.image" :alt="asset.asset">
                                                     </button>
                                                     <div>
@@ -1742,17 +1742,17 @@
                                 <div class="ga-scroll-right-header" ref="scrollRightHeaderAssets">
                                     <table class="ga-data-table assets">
                                         <colgroup>
+                                            <col style="width:150px">
+                                            <col style="width:150px">
+                                            <col style="width:160px">
                                             <col style="width:120px">
-                                            <col style="width:120px">
-                                            <col style="width:130px">
-                                            <col style="width:90px">
-                                            <col style="width:80px">
-                                            <col style="width:90px">
                                             <col style="width:110px">
-                                            <col style="width:100px">
-                                            <col style="width:130px">
-                                            <col style="width:130px">
+                                            <col style="width:120px">
                                             <col style="width:140px">
+                                            <col style="width:130px">
+                                            <col style="width:160px">
+                                            <col style="width:160px">
+                                            <col style="width:170px">
                                         </colgroup>
                                         <thead>
                                             <tr>
@@ -1776,7 +1776,8 @@
                                                 <th
                                                     :aria-sort="assetSortKey === 'cost' ? (assetSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
                                                     <button class="ga-sort-header" type="button"
-                                                        @click="toggleAssetSort('cost')" aria-label="Sort assets by cost">
+                                                        @click="toggleAssetSort('cost')"
+                                                        aria-label="Sort assets by cost">
                                                         <span>Cost</span>
                                                         <span class="material-symbols-outlined">
                                                             {{ assetCostSortDirection === 'asc' ? 'arrow_upward' :
@@ -1794,20 +1795,21 @@
                                 </div>
                                 <!-- ── Scrollable columns body ── -->
                                 <div class="ga-scroll-right">
-                                    <div class="ga-scroll-right-inner" ref="scrollRightInnerAssets" @scroll="onRightTableScrollAssets">
+                                    <div class="ga-scroll-right-inner" ref="scrollRightInnerAssets"
+                                        @scroll="onRightTableScrollAssets">
                                         <table class="ga-data-table assets">
                                             <colgroup>
+                                                <col style="width:150px">
+                                                <col style="width:150px">
+                                                <col style="width:160px">
                                                 <col style="width:120px">
-                                                <col style="width:120px">
-                                                <col style="width:130px">
-                                                <col style="width:90px">
-                                                <col style="width:80px">
-                                                <col style="width:90px">
                                                 <col style="width:110px">
-                                                <col style="width:100px">
-                                                <col style="width:130px">
-                                                <col style="width:130px">
+                                                <col style="width:120px">
                                                 <col style="width:140px">
+                                                <col style="width:130px">
+                                                <col style="width:160px">
+                                                <col style="width:160px">
+                                                <col style="width:170px">
                                             </colgroup>
                                             <tbody>
                                                 <tr v-if="isTableLoading" v-for="n in 5" :key="'skel-asset-r-' + n"
@@ -1828,8 +1830,10 @@
                                                     :class="{ 'ga-hidden-row': isTableLoading }">
                                                     <td>
                                                         <span class="ga-status-lines">
-                                                            <span v-for="line in statusDisplayLines(asset.status, 'asset')"
-                                                                :key="line.text" :class="['ga-status-line', line.tone]">{{
+                                                            <span
+                                                                v-for="line in statusDisplayLines(asset.status, 'asset')"
+                                                                :key="line.text"
+                                                                :class="['ga-status-line', line.tone]">{{
                                                                 line.text }}</span>
                                                         </span>
                                                     </td>
@@ -1838,10 +1842,14 @@
                                                         <span class="ga-dashed">
                                                             <span>{{ asset.performance }}</span>
                                                             <div class="ga-budget-simulator-popup">
-                                                                <div class="ga-budget-simulator-popup__body">This asset doesn't have
-                                                                    any performance information yet. A performance rating for this
-                                                                    asset will be shown once enough information has been collected.
-                                                                    <span class="ga-budget-simulator-popup__learn">Learn more</span>
+                                                                <div class="ga-budget-simulator-popup__body">This asset
+                                                                    doesn't have
+                                                                    any performance information yet. A performance
+                                                                    rating for this
+                                                                    asset will be shown once enough information has been
+                                                                    collected.
+                                                                    <span class="ga-budget-simulator-popup__learn">Learn
+                                                                        more</span>
                                                                 </div>
                                                             </div>
                                                         </span>

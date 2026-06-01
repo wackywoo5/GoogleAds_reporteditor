@@ -2630,6 +2630,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     background: #fff;
     overflow-x: auto;
     overflow-y: hidden;
+    padding-bottom: 1px; /* 防止底部边框被裁剪 */
     scrollbar-width: none;
     /* Firefox */
     -ms-overflow-style: none;
