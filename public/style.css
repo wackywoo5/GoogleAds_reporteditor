@@ -2412,6 +2412,16 @@ body.is-column-resizing * {
     background-color: #f5f5f5;
 }
 
+.calendar-day.disabled {
+    color: #bdc1c6;
+    cursor: default;
+    pointer-events: none;
+}
+
+.calendar-day.disabled:hover {
+    background-color: transparent;
+}
+
 .calendar-day.other-month {
     visibility: hidden;
 }

@@ -6,8 +6,16 @@ const CAMPAIGN_AUTO_STATUS_CACHE_KEY = 'googleAdsCampaignAutoStatuses';
 const ASSET_RANDOM_CACHE_KEY = 'googleAdsAssetRandom_';
 const DATE_FILTER_STORAGE_KEY = 'googleAdsDateFilter';
 const DATE_FILTER_STORAGE_VERSION = 'yesterday-default-v1';
+const DATE_FILTER_MIN_START_YEAR = 2025;
+const DATE_FILTER_MIN_START_MONTH = 4;
+const DATE_FILTER_MIN_START_DAY = 2;
+const ASSET_COLUMN_WIDTHS_STORAGE_KEY = 'googleAdsAssetColumnWidths';
 const PAGE_ROUTE_TRANSITION_DELAY = 420;
 const PAGE_ROUTE_TRANSITION_DURATION = 900;
+
+function getDateFilterMinStart() {
+    return new Date(DATE_FILTER_MIN_START_YEAR, DATE_FILTER_MIN_START_MONTH, DATE_FILTER_MIN_START_DAY);
+}
 
 function readCampaignStatusOverrides() {
     try {
@@ -100,8 +108,12 @@ function readDateFilterState() {
         saved = {};
     }
 
-    const startDate = parseStoredDate(saved.startDate) || parseStoredDate(defaultDateFilter.startDate);
-    const endDate = parseStoredDate(saved.endDate) || parseStoredDate(defaultDateFilter.endDate);
+    const minStartDate = getDateFilterMinStart();
+    let startDate = parseStoredDate(saved.startDate) || parseStoredDate(defaultDateFilter.startDate);
+    let endDate = parseStoredDate(saved.endDate) || parseStoredDate(defaultDateFilter.endDate);
+    if (startDate && startDate < minStartDate) startDate = new Date(minStartDate);
+    if (endDate && endDate < minStartDate) endDate = new Date(minStartDate);
+    if (startDate && endDate && startDate > endDate) startDate = new Date(endDate);
 
     return {
         selectedDateOption: saved.selectedDateOption || defaultDateFilter.selectedDateOption,
@@ -111,9 +123,19 @@ function readDateFilterState() {
     };
 }
 
+function readAssetColumnWidths() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(ASSET_COLUMN_WIDTHS_STORAGE_KEY) || '{}');
+        return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+    } catch (error) {
+        return {};
+    }
+}
+
 createApp({
     data() {
         const initialDateFilter = readDateFilterState();
+        const savedAssetColumnWidths = readAssetColumnWidths();
         return {
             pageMode: getInitialPageMode(),
             dropdown: '',
@@ -199,6 +221,107 @@ createApp({
             metricDeltaRatios: {},
             assetSortKey: 'cost',
             assetSortDirection: 'desc',
+            assetColumnWidths: {
+                campaignName: 300,
+                campaignBudget: 180,
+                campaignStatus: 200,
+                campaignOptimization: 160,
+                campaignType: 130,
+                campaignCostPerInstall: 100,
+                campaignCostPerInAppAction: 150,
+                campaignViewThroughConv: 140,
+                campaignInstalls: 100,
+                campaignInAppActions: 120,
+                campaignParticipatedInAppActions: 190,
+                campaignCost: 100,
+                campaignCostPerParticipatedInAppActions: 230,
+                campaignConvRate: 100,
+                campaignConversions: 100,
+                campaignCostPerConv: 100,
+                adGroupName: 260,
+                adGroupStatus: 220,
+                adGroupTargetCpa: 90,
+                adGroupConversions: 130,
+                adGroupCostPerConv: 110,
+                adGroupCostPerInstall: 100,
+                adGroupCostPerInAppAction: 160,
+                adGroupViewThroughConv: 160,
+                adGroupBrandInclusions: 150,
+                adGroupLocationsOfInterest: 160,
+                adGroupInstalls: 100,
+                adGroupInAppActions: 140,
+                adGroupParticipatedInAppActions: 200,
+                adGroupCost: 120,
+                adGroupCostPerParticipatedInAppActions: 230,
+                adGroupConvRate: 120,
+                asset: 320,
+                status: 150,
+                assetType: 150,
+                performance: 160,
+                clicks: 120,
+                ctr: 110,
+                impressions: 120,
+                cost: 140,
+                installs: 130,
+                costPerInstall: 160,
+                inAppActions: 160,
+                costPerInAppAction: 170,
+                installConvRate: 150,
+                inAppActionConvRate: 170,
+                installsPerThousandImpressions: 170,
+                ...savedAssetColumnWidths
+            },
+            assetColumnMinWidths: {
+                campaignName: 260,
+                campaignBudget: 148,
+                campaignStatus: 200,
+                campaignOptimization: 140,
+                campaignType: 110,
+                campaignCostPerInstall: 96,
+                campaignCostPerInAppAction: 130,
+                campaignViewThroughConv: 120,
+                campaignInstalls: 90,
+                campaignInAppActions: 112,
+                campaignParticipatedInAppActions: 160,
+                campaignCost: 90,
+                campaignCostPerParticipatedInAppActions: 180,
+                campaignConvRate: 90,
+                campaignConversions: 90,
+                campaignCostPerConv: 90,
+                adGroupName: 180,
+                adGroupStatus: 170,
+                adGroupTargetCpa: 80,
+                adGroupConversions: 100,
+                adGroupCostPerConv: 96,
+                adGroupCostPerInstall: 96,
+                adGroupCostPerInAppAction: 130,
+                adGroupViewThroughConv: 130,
+                adGroupBrandInclusions: 120,
+                adGroupLocationsOfInterest: 130,
+                adGroupInstalls: 90,
+                adGroupInAppActions: 112,
+                adGroupParticipatedInAppActions: 160,
+                adGroupCost: 90,
+                adGroupCostPerParticipatedInAppActions: 180,
+                adGroupConvRate: 90,
+                asset: 150,
+                status: 96,
+                assetType: 104,
+                performance: 120,
+                clicks: 86,
+                ctr: 80,
+                impressions: 86,
+                cost: 92,
+                installs: 92,
+                costPerInstall: 112,
+                inAppActions: 120,
+                costPerInAppAction: 130,
+                installConvRate: 112,
+                inAppActionConvRate: 132,
+                installsPerThousandImpressions: 138
+            },
+            assetColumnResizeState: null,
+            resizingAssetColumn: '',
             tooltip: {
                 visible: false,
                 text: '',
@@ -713,6 +836,9 @@ createApp({
                 row.ctr = row.impressions ? (row.clicks / row.impressions) * 100 : 0;
                 row.costPerInstall = row.installs ? row.cost / row.installs : 0;
                 row.costPerInAppAction = row.inAppActions ? row.cost / row.inAppActions : 0;
+                row.installConvRate = row.clicks ? (row.installs / row.clicks) * 100 : 0;
+                row.inAppActionConvRate = row.clicks ? (row.inAppActions / row.clicks) * 100 : 0;
+                row.installsPerThousandImpressions = row.impressions ? (row.installs / row.impressions) * 1000 : 0;
             }
 
             return all.sort((left, right) => {
@@ -739,6 +865,48 @@ createApp({
         },
         assetTypeSortDirection() {
             return this.assetSortKey === 'assetType' ? this.assetSortDirection : 'asc';
+        },
+        assetLeftColumnKeys() {
+            return ['asset'];
+        },
+        assetRightColumnKeys() {
+            return [
+                'status',
+                'assetType',
+                'performance',
+                'clicks',
+                'ctr',
+                'impressions',
+                'cost',
+                'installs',
+                'costPerInstall',
+                'inAppActions',
+                'costPerInAppAction',
+                'installConvRate',
+                'inAppActionConvRate',
+                'installsPerThousandImpressions'
+            ];
+        },
+        assetLeftTableStyle() {
+            return this.assetLockedTableStyle(this.assetLeftColumnKeys);
+        },
+        assetRightTableStyle() {
+            return this.assetLockedTableStyle(this.assetRightColumnKeys);
+        },
+        assetSplitTableStyle() {
+            const width = this.getAssetColumnWidth('asset');
+            return {
+                '--asset-frozen-width': `${width}px`,
+                '--asset-name-min-width': `${this.assetColumnMinWidths.asset}px`
+            };
+        },
+        assetLeftPaneStyle() {
+            const width = this.getAssetColumnWidth('asset');
+            return {
+                width: `${width}px`,
+                minWidth: `${width}px`,
+                maxWidth: `${width}px`
+            };
         },
         activeRows() {
             if (this.pageMode === 'adassets') return this.assetRows;
@@ -910,6 +1078,121 @@ createApp({
 
             this.assetSortKey = key;
             this.assetSortDirection = key === 'assetType' ? 'asc' : 'desc';
+        },
+        getAssetColumnWidth(columnKey) {
+            const width = Number(this.assetColumnWidths[columnKey]);
+            const minWidth = this.assetColumnMinWidths[columnKey] || 80;
+            if (Number.isFinite(width) && width > 0) return Math.max(minWidth, width);
+            return minWidth;
+        },
+        assetColumnWidthStyle(columnKey) {
+            return { width: `${this.getAssetColumnWidth(columnKey)}px` };
+        },
+        assetLockedTableStyle(columnKeys) {
+            const width = columnKeys.reduce((total, columnKey) => total + this.getAssetColumnWidth(columnKey), 0);
+            return {
+                tableLayout: 'fixed',
+                width: `${width}px`,
+                minWidth: `${width}px`,
+                maxWidth: `${width}px`
+            };
+        },
+        getPointerClientX(event) {
+            const touch = event.touches && event.touches[0]
+                ? event.touches[0]
+                : event.changedTouches && event.changedTouches[0];
+            if (touch) return touch.clientX;
+            return Number.isFinite(event.clientX) ? event.clientX : null;
+        },
+        startAssetColumnResize(event, columnKey) {
+            const clientX = this.getPointerClientX(event);
+            if (clientX === null) return;
+
+            this.assetColumnResizeState = {
+                columnKey,
+                startX: clientX,
+                startWidth: this.getAssetColumnWidth(columnKey)
+            };
+            this.resizingAssetColumn = columnKey;
+            document.body.classList.add('is-ga-column-resizing');
+            document.addEventListener('mousemove', this.handleAssetColumnResize);
+            document.addEventListener('mouseup', this.stopAssetColumnResize);
+            document.addEventListener('touchmove', this.handleAssetColumnResize, { passive: false });
+            document.addEventListener('touchend', this.stopAssetColumnResize);
+            document.addEventListener('touchcancel', this.stopAssetColumnResize);
+        },
+        handleAssetColumnResize(event) {
+            if (!this.assetColumnResizeState) return;
+            if (event.cancelable) event.preventDefault();
+
+            const clientX = this.getPointerClientX(event);
+            if (clientX === null) return;
+
+            const { columnKey, startX, startWidth } = this.assetColumnResizeState;
+            const minWidth = this.assetColumnMinWidths[columnKey] || 80;
+            const nextWidth = Math.max(minWidth, Math.round(startWidth + clientX - startX));
+            this.assetColumnWidths = {
+                ...this.assetColumnWidths,
+                [columnKey]: nextWidth
+            };
+            this.$nextTick(() => this.initTableColumnWidths());
+        },
+        stopAssetColumnResize() {
+            if (this.assetColumnResizeState) {
+                try {
+                    localStorage.setItem(ASSET_COLUMN_WIDTHS_STORAGE_KEY, JSON.stringify(this.assetColumnWidths));
+                } catch (error) {
+                }
+            }
+
+            this.assetColumnResizeState = null;
+            this.resizingAssetColumn = '';
+            document.body.classList.remove('is-ga-column-resizing');
+            document.removeEventListener('mousemove', this.handleAssetColumnResize);
+            document.removeEventListener('mouseup', this.stopAssetColumnResize);
+            document.removeEventListener('touchmove', this.handleAssetColumnResize);
+            document.removeEventListener('touchend', this.stopAssetColumnResize);
+            document.removeEventListener('touchcancel', this.stopAssetColumnResize);
+            this.$nextTick(() => this.initTableColumnWidths());
+        },
+        syncAssetTableColumnWidths() {
+            if (this.pageMode !== 'adassets') return;
+
+            const applyWidths = (tables, columnKeys) => {
+                const width = columnKeys.reduce((total, columnKey) => total + this.getAssetColumnWidth(columnKey), 0);
+                const lockCss = `table-layout:fixed !important;width:${width}px !important;min-width:${width}px !important;max-width:${width}px !important;`;
+
+                tables.forEach(table => {
+                    if (!table) return;
+                    table.style.cssText = lockCss;
+                    const cols = table.querySelectorAll('colgroup col');
+                    columnKeys.forEach((columnKey, index) => {
+                        if (cols[index]) cols[index].style.width = `${this.getAssetColumnWidth(columnKey)}px`;
+                    });
+                });
+            };
+
+            const rightInner = this.$refs.scrollRightInnerAssets;
+            const rightHeader = this.$refs.scrollRightHeaderAssets;
+            applyWidths(
+                [
+                    rightHeader && rightHeader.querySelector('table.ga-data-table'),
+                    rightInner && rightInner.querySelector('table.ga-data-table')
+                ],
+                this.assetRightColumnKeys
+            );
+
+            applyWidths(
+                [
+                    document.querySelector('.ga-frozen-left-header table.ga-data-table.assets'),
+                    document.querySelector('.ga-frozen-left table.ga-data-table.assets')
+                ],
+                this.assetLeftColumnKeys
+            );
+
+            if (rightInner && rightHeader) {
+                rightHeader.scrollLeft = rightInner.scrollLeft;
+            }
         },
         toggleCampaignSort(key) {
             if (!['campaign', 'installs', 'cost'].includes(key)) return;
@@ -1135,6 +1418,14 @@ createApp({
             if (!d || !start || !end) return false;
             return d >= start && d <= end;
         },
+        isBeforeDateFilterMinStart(date) {
+            const d = this.parseLocalDate(date);
+            const minStartDate = getDateFilterMinStart();
+            return !!d && d < minStartDate;
+        },
+        isCalendarDateDisabled(date) {
+            return this.isBeforeDateFilterMinStart(date);
+        },
         toggleDatePicker(event) {
             if (event) event.stopPropagation();
             if (this.showDatePicker) {
@@ -1260,7 +1551,7 @@ createApp({
                     this.draftEndDate = new Date(today.getFullYear(), today.getMonth(), 0);
                     break;
                 case 'allTime':
-                    this.draftStartDate = new Date(2000, 0, 1);
+                    this.draftStartDate = getDateFilterMinStart();
                     this.draftEndDate = new Date(today);
                     break;
                 case 'custom':
@@ -1270,12 +1561,17 @@ createApp({
                     break;
             }
 
+            const minStartDate = getDateFilterMinStart();
+            if (this.draftStartDate && this.draftStartDate < minStartDate) this.draftStartDate = new Date(minStartDate);
+            if (this.draftEndDate && this.draftEndDate < minStartDate) this.draftEndDate = new Date(minStartDate);
+
             if (this.draftStartDate) {
                 this.calendarMonth = new Date(this.draftStartDate);
             }
             this.$nextTick(() => this.scrollToSelectedDate());
         },
         selectCalendarDate(date) {
+            if (this.isCalendarDateDisabled(date)) return;
             if (this.selectingStartDate) {
                 this.draftStartDate = new Date(date);
                 this.draftEndDate = null;
@@ -1301,7 +1597,10 @@ createApp({
             this.selectedDateOption = 'custom';
         },
         navigateMonth(direction) {
-            this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + direction, 1);
+            const nextMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + direction, 1);
+            const minStartDate = getDateFilterMinStart();
+            const minMonth = new Date(minStartDate.getFullYear(), minStartDate.getMonth(), 1);
+            this.calendarMonth = nextMonth < minMonth ? minMonth : nextMonth;
         },
         cloneDate(date) {
             const parsed = this.parseLocalDate(date);
@@ -1311,12 +1610,18 @@ createApp({
             this.selectedDateOption = this.appliedDateOption;
             this.draftStartDate = this.cloneDate(this.startDate);
             this.draftEndDate = this.cloneDate(this.endDate);
+            const minStartDate = getDateFilterMinStart();
+            if (this.draftStartDate && this.draftStartDate < minStartDate) this.draftStartDate = new Date(minStartDate);
+            if (this.draftEndDate && this.draftEndDate < minStartDate) this.draftEndDate = new Date(minStartDate);
             this.selectingStartDate = true;
         },
         async applyDateRange() {
             if (!this.draftStartDate || !this.draftEndDate) return;
             this.startDate = this.cloneDate(this.draftStartDate);
             this.endDate = this.cloneDate(this.draftEndDate);
+            const minStartDate = getDateFilterMinStart();
+            if (this.startDate < minStartDate) this.startDate = new Date(minStartDate);
+            if (this.endDate < minStartDate) this.endDate = new Date(minStartDate);
             this.appliedDateOption = this.selectedDateOption;
             this.saveDateFilterState();
             this.showDatePicker = false;
@@ -1337,6 +1642,12 @@ createApp({
             const daySpan = Math.max(1, Math.round((end - start) / 86400000) + 1);
             start.setDate(start.getDate() + direction * daySpan);
             end.setDate(end.getDate() + direction * daySpan);
+            const minStartDate = getDateFilterMinStart();
+            if (start < minStartDate) {
+                const offset = minStartDate - start;
+                start.setTime(start.getTime() + offset);
+                end.setTime(end.getTime() + offset);
+            }
             this.startDate = start;
             this.endDate = end;
             this.appliedDateOption = 'custom';
@@ -1866,6 +2177,14 @@ createApp({
             this.handleRightTableScroll();
         },
 
+        onRightTableHeaderScrollAssets() {
+            const inner = this.$refs.scrollRightInnerAssets;
+            const header = this.$refs.scrollRightHeaderAssets;
+            if (inner && header) {
+                inner.scrollLeft = header.scrollLeft;
+            }
+        },
+
         handleRightTableScroll() {
             const mode = this.pageMode;
             const refSuffix = mode === 'campaigns' ? '' : mode === 'adgroups' ? 'Adgroups' : 'Assets';
@@ -1897,6 +2216,12 @@ createApp({
                     if (frozenHeader) frozenHeader.style.top = '';
                     if (scrollHeader) scrollHeader.style.top = '';
                     if (assetStrength) assetStrength.style.top = '';
+                }
+
+                if (mode === 'adassets') {
+                    this.syncAssetTableColumnWidths();
+                    this._syncTableHover();
+                    return;
                 }
 
                 // ── Sync RIGHT table ──
@@ -2197,6 +2522,7 @@ createApp({
         this.initTableColumnWidths();
     },
     beforeUnmount() {
+        this.stopAssetColumnResize();
         document.removeEventListener('click', this.closeDropdown);
         document.removeEventListener('click', this.handleClickOutside);
         document.removeEventListener('click', this.handleAnyClick, true);

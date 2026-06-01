@@ -1,5 +1,13 @@
 const { createApp } = Vue;
 
+const DATE_FILTER_MIN_START_YEAR = 2025;
+const DATE_FILTER_MIN_START_MONTH = 4;
+const DATE_FILTER_MIN_START_DAY = 2;
+
+function getDateFilterMinStart() {
+    return new Date(DATE_FILTER_MIN_START_YEAR, DATE_FILTER_MIN_START_MONTH, DATE_FILTER_MIN_START_DAY);
+}
+
 createApp({
     data() {
         const defaultSelectedAccounts = ['680-644-5446', '921-239-0750'];
@@ -672,6 +680,13 @@ createApp({
             const d = new Date(date);
             return d >= new Date(this.draftStartDate) && d <= new Date(this.draftEndDate);
         },
+        isBeforeDateFilterMinStart(date) {
+            const d = new Date(date);
+            return !Number.isNaN(d.getTime()) && d < getDateFilterMinStart();
+        },
+        isCalendarDateDisabled(date) {
+            return this.isBeforeDateFilterMinStart(date);
+        },
         toggleDatePicker(event) {
             event.stopPropagation();
             if (this.showDatePicker) {
@@ -809,11 +824,14 @@ createApp({
                     this.draftEndDate = lastMonthEnd;
                     break;
                 case 'allTime':
-                    this.draftStartDate = new Date(2000, 0, 1);
+                    this.draftStartDate = getDateFilterMinStart();
                     this.draftEndDate = new Date();
                     break;
             }
             if (this.draftStartDate) {
+                const minStartDate = getDateFilterMinStart();
+                if (this.draftStartDate < minStartDate) this.draftStartDate = new Date(minStartDate);
+                if (this.draftEndDate && this.draftEndDate < minStartDate) this.draftEndDate = new Date(minStartDate);
                 this.calendarMonth = new Date(this.draftStartDate);
             }
             if (option !== 'custom' && !options.skipApply) {
@@ -824,6 +842,7 @@ createApp({
             });
         },
         selectCalendarDate(date) {
+            if (this.isCalendarDateDisabled(date)) return;
             if (this.selectingStartDate || !this.draftStartDate) {
                 this.draftStartDate = new Date(date);
                 this.draftEndDate = null;
@@ -855,7 +874,10 @@ createApp({
             this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + 1, 1);
         },
         navigateMonth(direction) {
-            this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + direction, 1);
+            const nextMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + direction, 1);
+            const minStartDate = getDateFilterMinStart();
+            const minMonth = new Date(minStartDate.getFullYear(), minStartDate.getMonth(), 1);
+            this.calendarMonth = nextMonth < minMonth ? minMonth : nextMonth;
         },
         cloneDate(date) {
             const parsed = this.parseLocalDate(date);
@@ -865,12 +887,18 @@ createApp({
             this.selectedDateOption = this.appliedDateOption;
             this.draftStartDate = this.cloneDate(this.startDate);
             this.draftEndDate = this.cloneDate(this.endDate);
+            const minStartDate = getDateFilterMinStart();
+            if (this.draftStartDate && this.draftStartDate < minStartDate) this.draftStartDate = new Date(minStartDate);
+            if (this.draftEndDate && this.draftEndDate < minStartDate) this.draftEndDate = new Date(minStartDate);
             this.selectingStartDate = true;
         },
         applyDateRange(options = {}) {
             if (!this.draftStartDate || !this.draftEndDate) return;
+            const minStartDate = getDateFilterMinStart();
             this.startDate = this.cloneDate(this.draftStartDate);
             this.endDate = this.cloneDate(this.draftEndDate);
+            if (this.startDate < minStartDate) this.startDate = new Date(minStartDate);
+            if (this.endDate < minStartDate) this.endDate = new Date(minStartDate);
             this.appliedDateOption = this.selectedDateOption;
             this.currentPage = 1;
             this.showDatePicker = false;

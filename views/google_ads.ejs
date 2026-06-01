@@ -550,7 +550,8 @@
                                                                     'in-range': isInRange(day.date),
                                                                     'start-date': isSameDay(day.date, draftStartDate) && !isSameDay(draftStartDate, draftEndDate),
                                                                     'end-date': isSameDay(day.date, draftEndDate) && !isSameDay(draftStartDate, draftEndDate),
-                                                                    'single-date': isSameDay(day.date, draftStartDate) && isSameDay(draftStartDate, draftEndDate)
+                                                                    'single-date': isSameDay(day.date, draftStartDate) && isSameDay(draftStartDate, draftEndDate),
+                                                                    'disabled': isCalendarDateDisabled(day.date)
                                                                 }" @click="selectCalendarDate(day.date)">
                                                                 <span class="day-number">{{ day.date.getDate() }}</span>
                                                             </div>
@@ -1202,14 +1203,14 @@
                                     <table class="ga-data-table campaigns">
                                         <colgroup>
                                             <col style="width:42px">
-                                            <col style="width:46px">
-                                            <col style="width:300px">
+                                            <col style="width:52px">
+                                            <col :style="assetColumnWidthStyle('campaignName')">
                                         </colgroup>
                                         <thead>
                                             <tr>
                                                 <th class="select-col"><span class="ga-checkbox"></span></th>
                                                 <th class="state-col"><span class="ga-status-dot"></span></th>
-                                                <th class="name-col">
+                                                <th class="name-col ga-resizable-header">
                                                     <button class="ga-sort-header ga-sort-header--left" type="button"
                                                         @click="toggleCampaignSort('campaign')">
                                                         <span>Campaign</span>
@@ -1217,6 +1218,11 @@
                                                             campaignSortIcon('campaign')
                                                             }}</span>
                                                     </button>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'campaignName' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignName')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignName')"
+                                                        @click.stop></span>
                                                 </th>
                                             </tr>
                                         </thead>
@@ -1227,8 +1233,8 @@
                                     <table class="ga-data-table campaigns">
                                         <colgroup>
                                             <col style="width:42px">
-                                            <col style="width:46px">
-                                            <col style="width:300px">
+                                            <col style="width:52px">
+                                            <col :style="assetColumnWidthStyle('campaignName')">
                                         </colgroup>
                                         <tbody>
                                             <tr class="draft-row">
@@ -1285,8 +1291,7 @@
                                                     <a :href="campaignHref(campaign.campaign)"
                                                         @click.prevent="navigateToGoogleAdsRoute(campaignHref(campaign.campaign), $event)">{{
                                                         campaign.campaign }}</a>
-                                                    <i class="ga-status-rowbudget" aria-hidden="true"
-                                                        style="margin-left: 15px; margin-right: 25px;"></i>
+                                                    <i class="ga-status-rowbudget" aria-hidden="true"></i>
                                                     <i class="material-symbols-outlined ga-status-rowitem"
                                                         aria-hidden="true">settings</i>
                                                 </td>
@@ -1301,32 +1306,32 @@
                                 <div class="ga-scroll-right-header" ref="scrollRightHeader">
                                     <table class="ga-data-table campaigns">
                                         <colgroup>
-                                            <col style="width:180px">
-                                            <col style="width:190px">
-                                            <col style="width:160px">
-                                            <col style="width:130px">
-                                            <col style="width:100px">
-                                            <col style="width:150px">
-                                            <col style="width:140px">
-                                            <col style="width:100px">
-                                            <col style="width: 120px;">
-                                            <col style="width:190px">
-                                            <col style="width: 100px;">
-                                            <col style="width:230px">
-                                            <col style="width: 100px;">
-                                            <col style="width: 100px;">
-                                            <col style="width: 100px;">
+                                            <col :style="assetColumnWidthStyle('campaignBudget')">
+                                            <col :style="assetColumnWidthStyle('campaignStatus')">
+                                            <col :style="assetColumnWidthStyle('campaignOptimization')">
+                                            <col :style="assetColumnWidthStyle('campaignType')">
+                                            <col :style="assetColumnWidthStyle('campaignCostPerInstall')">
+                                            <col :style="assetColumnWidthStyle('campaignCostPerInAppAction')">
+                                            <col :style="assetColumnWidthStyle('campaignViewThroughConv')">
+                                            <col :style="assetColumnWidthStyle('campaignInstalls')">
+                                            <col :style="assetColumnWidthStyle('campaignInAppActions')">
+                                            <col :style="assetColumnWidthStyle('campaignParticipatedInAppActions')">
+                                            <col :style="assetColumnWidthStyle('campaignCost')">
+                                            <col :style="assetColumnWidthStyle('campaignCostPerParticipatedInAppActions')">
+                                            <col :style="assetColumnWidthStyle('campaignConvRate')">
+                                            <col :style="assetColumnWidthStyle('campaignConversions')">
+                                            <col :style="assetColumnWidthStyle('campaignCostPerConv')">
                                         </colgroup>
                                         <thead>
                                             <tr>
-                                                <th>Budget</th>
-                                                <th class="status-col">Status</th>
-                                                <th><span class="th-dashed">Optimization score</span></th>
-                                                <th>Campaign type</th>
-                                                <th>Cost / Install</th>
-                                                <th>Cost / In-app action</th>
-                                                <th>View-through conv.</th>
-                                                <th>
+                                                <th class="ga-resizable-header campaign-budget-header"><span>Budget</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignBudget' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignBudget')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignBudget')" @click.stop></span></th>
+                                                <th class="status-col ga-resizable-header"><span>Status</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignStatus' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignStatus')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignStatus')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span class="th-dashed">Optimization score</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignOptimization' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignOptimization')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignOptimization')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Campaign type</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignType' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignType')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignType')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Cost / Install</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignCostPerInstall' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignCostPerInstall')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignCostPerInstall')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Cost / In-app action</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignCostPerInAppAction' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignCostPerInAppAction')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignCostPerInAppAction')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>View-through conv.</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignViewThroughConv' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignViewThroughConv')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignViewThroughConv')" @click.stop></span></th>
+                                                <th class="ga-resizable-header">
                                                     <button class="ga-sort-header" type="button"
                                                         @click="toggleCampaignSort('installs')">
                                                         <span v-if="campaignSortKey === 'installs'"
@@ -1335,10 +1340,11 @@
                                                             }}</span>
                                                         <span class="th-dashed">Installs</span>
                                                     </button>
+                                                    <span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignInstalls' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignInstalls')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignInstalls')" @click.stop></span>
                                                 </th>
-                                                <th><span class="th-dashed">In-app actions</span></th>
-                                                <th><span class="th-dashed">Particlpated in-app actions</span></th>
-                                                <th>
+                                                <th class="ga-resizable-header"><span class="th-dashed">In-app actions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignInAppActions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignInAppActions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignInAppActions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span class="th-dashed">Particlpated in-app actions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignParticipatedInAppActions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignParticipatedInAppActions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignParticipatedInAppActions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header">
                                                     <button class="ga-sort-header" type="button"
                                                         @click="toggleCampaignSort('cost')">
                                                         <span v-if="campaignSortKey === 'cost'"
@@ -1347,12 +1353,14 @@
                                                             }}</span>
                                                         <span class="th-dashed">Cost</span>
                                                     </button>
+                                                    <span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignCost' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignCost')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignCost')" @click.stop></span>
                                                 </th>
-                                                <th><span class="th-dashed">Cost / Particlpated in-app actions</span>
+                                                <th class="ga-resizable-header"><span class="th-dashed">Cost / Particlpated in-app actions</span>
+                                                    <span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignCostPerParticipatedInAppActions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignCostPerParticipatedInAppActions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignCostPerParticipatedInAppActions')" @click.stop></span>
                                                 </th>
-                                                <th><span class="th-dashed">Conv. rate</span></th>
-                                                <th><span class="th-dashed">Conversions</span></th>
-                                                <th><span class="th-dashed">Cost / conv.</span></th>
+                                                <th class="ga-resizable-header"><span class="th-dashed">Conv. rate</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignConvRate' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignConvRate')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignConvRate')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span class="th-dashed">Conversions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignConversions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignConversions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignConversions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span class="th-dashed">Cost / conv.</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'campaignCostPerConv' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'campaignCostPerConv')" @touchstart.stop.prevent="startAssetColumnResize($event, 'campaignCostPerConv')" @click.stop></span></th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -1363,21 +1371,21 @@
                                         @scroll="onRightTableScroll">
                                         <table class="ga-data-table campaigns">
                                             <colgroup>
-                                                <col style="width:180px">
-                                                <col style="width:190px">
-                                                <col style="width:160px">
-                                                <col style="width:130px">
-                                                <col style="width:100px">
-                                                <col style="width:150px">
-                                                <col style="width:140px">
-                                                <col style="width:100px">
-                                                <col style="width: 120px;">
-                                                <col style="width:190px">
-                                                <col style="width: 100px;">
-                                                <col style="width:230px">
-                                                <col style="width: 100px;">
-                                                <col style="width: 100px;">
-                                                <col style="width: 100px;">
+                                                <col :style="assetColumnWidthStyle('campaignBudget')">
+                                                <col :style="assetColumnWidthStyle('campaignStatus')">
+                                                <col :style="assetColumnWidthStyle('campaignOptimization')">
+                                                <col :style="assetColumnWidthStyle('campaignType')">
+                                                <col :style="assetColumnWidthStyle('campaignCostPerInstall')">
+                                                <col :style="assetColumnWidthStyle('campaignCostPerInAppAction')">
+                                                <col :style="assetColumnWidthStyle('campaignViewThroughConv')">
+                                                <col :style="assetColumnWidthStyle('campaignInstalls')">
+                                                <col :style="assetColumnWidthStyle('campaignInAppActions')">
+                                                <col :style="assetColumnWidthStyle('campaignParticipatedInAppActions')">
+                                                <col :style="assetColumnWidthStyle('campaignCost')">
+                                                <col :style="assetColumnWidthStyle('campaignCostPerParticipatedInAppActions')">
+                                                <col :style="assetColumnWidthStyle('campaignConvRate')">
+                                                <col :style="assetColumnWidthStyle('campaignConversions')">
+                                                <col :style="assetColumnWidthStyle('campaignCostPerConv')">
                                             </colgroup>
                                             <tbody>
                                                 <tr class="draft-row">
@@ -1510,14 +1518,20 @@
                                         <colgroup>
                                             <col style="width:42px">
                                             <col style="width:46px">
-                                            <col style="width:260px">
+                                            <col :style="assetColumnWidthStyle('adGroupName')">
                                         </colgroup>
                                         <thead>
                                             <tr>
                                                 <th class="select-col"><span class="ga-checkbox"></span></th>
                                                 <th class="state-col"><span class="ga-status-dot"></span></th>
-                                                <th class="name-col">Ad group <span
-                                                        class="material-symbols-outlined">arrow_downward</span></th>
+                                                <th class="name-col ga-resizable-header">Ad group <span
+                                                        class="material-symbols-outlined">arrow_downward</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'adGroupName' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupName')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupName')"
+                                                        @click.stop></span>
+                                                </th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -1528,7 +1542,7 @@
                                         <colgroup>
                                             <col style="width:42px">
                                             <col style="width:46px">
-                                            <col style="width:260px">
+                                            <col :style="assetColumnWidthStyle('adGroupName')">
                                         </colgroup>
                                         <tbody>
                                             <tr v-if="isTableLoading" v-for="n in 5" :key="'skel-ag-l-' + n"
@@ -1562,39 +1576,39 @@
                                 <div class="ga-scroll-right-header" ref="scrollRightHeaderAdgroups">
                                     <table class="ga-data-table adgroups">
                                         <colgroup>
-                                            <col style="width:220px">
-                                            <col style="width:90px">
-                                            <col style="width:130px">
-                                            <col style="width:110px">
-                                            <col style="width:100px">
-                                            <col style="width:160px">
-                                            <col style="width:160px">
-                                            <col style="width:150px">
-                                            <col style="width:160px">
-                                            <col style="width:100px">
-                                            <col style="width:140px">
-                                            <col style="width:200px">
-                                            <col style="width:120px">
-                                            <col style="width:230px">
-                                            <col style="width:120px">
+                                            <col :style="assetColumnWidthStyle('adGroupStatus')">
+                                            <col :style="assetColumnWidthStyle('adGroupTargetCpa')">
+                                            <col :style="assetColumnWidthStyle('adGroupConversions')">
+                                            <col :style="assetColumnWidthStyle('adGroupCostPerConv')">
+                                            <col :style="assetColumnWidthStyle('adGroupCostPerInstall')">
+                                            <col :style="assetColumnWidthStyle('adGroupCostPerInAppAction')">
+                                            <col :style="assetColumnWidthStyle('adGroupViewThroughConv')">
+                                            <col :style="assetColumnWidthStyle('adGroupBrandInclusions')">
+                                            <col :style="assetColumnWidthStyle('adGroupLocationsOfInterest')">
+                                            <col :style="assetColumnWidthStyle('adGroupInstalls')">
+                                            <col :style="assetColumnWidthStyle('adGroupInAppActions')">
+                                            <col :style="assetColumnWidthStyle('adGroupParticipatedInAppActions')">
+                                            <col :style="assetColumnWidthStyle('adGroupCost')">
+                                            <col :style="assetColumnWidthStyle('adGroupCostPerParticipatedInAppActions')">
+                                            <col :style="assetColumnWidthStyle('adGroupConvRate')">
                                         </colgroup>
                                         <thead>
                                             <tr>
-                                                <th>Status</th>
-                                                <th>Target CPA</th>
-                                                <th>Conversions</th>
-                                                <th>Cost / conv.</th>
-                                                <th>Cost / Install</th>
-                                                <th>Cost / In-app action</th>
-                                                <th>View-through conv.</th>
-                                                <th>Brand Inclusions</th>
-                                                <th>Locations of interest</th>
-                                                <th>Installs</th>
-                                                <th>In-app actions</th>
-                                                <th>Particlpated in-app actions</th>
-                                                <th>Cost</th>
-                                                <th>Cost / Particlpated in-app actions</th>
-                                                <th>Conv. rate</th>
+                                                <th class="status-col ga-resizable-header"><span>Status</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupStatus' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupStatus')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupStatus')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Target CPA</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupTargetCpa' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupTargetCpa')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupTargetCpa')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Conversions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupConversions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupConversions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupConversions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Cost / conv.</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupCostPerConv' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerConv')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerConv')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Cost / Install</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupCostPerInstall' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerInstall')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerInstall')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Cost / In-app action</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupCostPerInAppAction' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerInAppAction')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerInAppAction')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>View-through conv.</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupViewThroughConv' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupViewThroughConv')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupViewThroughConv')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Brand Inclusions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupBrandInclusions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupBrandInclusions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupBrandInclusions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Locations of interest</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupLocationsOfInterest' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupLocationsOfInterest')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupLocationsOfInterest')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Installs</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupInstalls' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupInstalls')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupInstalls')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>In-app actions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupInAppActions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupInAppActions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupInAppActions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Particlpated in-app actions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupParticipatedInAppActions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupParticipatedInAppActions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupParticipatedInAppActions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Cost</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupCost' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupCost')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupCost')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Cost / Particlpated in-app actions</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupCostPerParticipatedInAppActions' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerParticipatedInAppActions')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupCostPerParticipatedInAppActions')" @click.stop></span></th>
+                                                <th class="ga-resizable-header"><span>Conv. rate</span><span class="ga-column-resize-handle" :class="{ resizing: resizingAssetColumn === 'adGroupConvRate' }" @mousedown.stop.prevent="startAssetColumnResize($event, 'adGroupConvRate')" @touchstart.stop.prevent="startAssetColumnResize($event, 'adGroupConvRate')" @click.stop></span></th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -1605,21 +1619,21 @@
                                         @scroll="onRightTableScrollAdgroups">
                                         <table class="ga-data-table adgroups">
                                             <colgroup>
-                                                <col style="width:220px">
-                                                <col style="width:90px">
-                                                <col style="width:130px">
-                                                <col style="width:110px">
-                                                <col style="width:100px">
-                                                <col style="width:160px">
-                                                <col style="width:160px">
-                                                <col style="width:150px">
-                                                <col style="width:160px">
-                                                <col style="width:100px">
-                                                <col style="width:140px">
-                                                <col style="width:200px">
-                                                <col style="width:120px">
-                                                <col style="width:230px">
-                                                <col style="width:120px">
+                                                <col :style="assetColumnWidthStyle('adGroupStatus')">
+                                                <col :style="assetColumnWidthStyle('adGroupTargetCpa')">
+                                                <col :style="assetColumnWidthStyle('adGroupConversions')">
+                                                <col :style="assetColumnWidthStyle('adGroupCostPerConv')">
+                                                <col :style="assetColumnWidthStyle('adGroupCostPerInstall')">
+                                                <col :style="assetColumnWidthStyle('adGroupCostPerInAppAction')">
+                                                <col :style="assetColumnWidthStyle('adGroupViewThroughConv')">
+                                                <col :style="assetColumnWidthStyle('adGroupBrandInclusions')">
+                                                <col :style="assetColumnWidthStyle('adGroupLocationsOfInterest')">
+                                                <col :style="assetColumnWidthStyle('adGroupInstalls')">
+                                                <col :style="assetColumnWidthStyle('adGroupInAppActions')">
+                                                <col :style="assetColumnWidthStyle('adGroupParticipatedInAppActions')">
+                                                <col :style="assetColumnWidthStyle('adGroupCost')">
+                                                <col :style="assetColumnWidthStyle('adGroupCostPerParticipatedInAppActions')">
+                                                <col :style="assetColumnWidthStyle('adGroupConvRate')">
                                             </colgroup>
                                             <tbody>
                                                 <tr v-if="isTableLoading" v-for="n in 5" :key="'skel-ag-r-' + n"
@@ -1642,8 +1656,15 @@
                                                 </tr>
                                                 <tr v-for="(adGroup, index) in paginatedAdGroupRows" :key="adGroup.id"
                                                     :class="{ 'ga-hidden-row': isTableLoading }">
-                                                    <td><span class="ga-dashed">{{ dash(adGroup.Status ||
-                                                            adGroup.status) }}</span></td>
+                                                    <td class="status-col">
+                                                        <span class="ga-status-lines">
+                                                            <span
+                                                                v-for="line in statusDisplayLines(adGroup.Status || adGroup.status, 'adgroup')"
+                                                                :key="line.text"
+                                                                :class="['ga-status-line', line.tone]">{{
+                                                                line.text }}</span>
+                                                        </span>
+                                                    </td>
                                                     <td>{{ fixed(adGroup.TargetCPA || adGroup.targetCpa) }}</td>
                                                     <td>{{ numberOrZero(adGroup.Conversions) }}</td>
                                                     <td>{{ moneyOrDash(adGroup.CostPerConv) }}</td>
@@ -1687,30 +1708,35 @@
                         </div>
 
                         <div v-if="pageMode === 'adassets'" class="ga-table-scroll-inner">
-                            <div class="ga-split-table">
+                            <div class="ga-split-table ga-split-table--assets" :style="assetSplitTableStyle">
                                 <!-- ── Frozen columns header ── -->
-                                <div class="ga-frozen-left-header">
-                                    <table class="ga-data-table assets">
+                                <div class="ga-frozen-left-header" :style="assetLeftPaneStyle">
+                                    <table class="ga-data-table assets" :style="assetLeftTableStyle">
                                         <colgroup>
-                                            <col style="width:320px">
+                                            <col :style="assetColumnWidthStyle('asset')">
                                         </colgroup>
                                         <thead>
                                             <tr>
-                                                <th class="name-col">
+                                                <th class="name-col ga-resizable-header">
                                                     <span class="asset-header-cell">
                                                         <span class="ga-status-dot"></span>
                                                         <span>Asset</span>
                                                     </span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'asset' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'asset')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'asset')"
+                                                        @click.stop></span>
                                                 </th>
                                             </tr>
                                         </thead>
                                     </table>
                                 </div>
                                 <!-- ── Frozen columns body ── -->
-                                <div class="ga-frozen-left">
-                                    <table class="ga-data-table assets">
+                                <div class="ga-frozen-left" :style="assetLeftPaneStyle">
+                                    <table class="ga-data-table assets" :style="assetLeftTableStyle">
                                         <colgroup>
-                                            <col style="width:320px">
+                                            <col :style="assetColumnWidthStyle('asset')">
                                         </colgroup>
                                         <tbody>
                                             <tr v-if="isTableLoading" v-for="n in 5" :key="'skel-asset-l-' + n"
@@ -1739,56 +1765,157 @@
                                     </table>
                                 </div>
                                 <!-- ── Scrollable columns header ── -->
-                                <div class="ga-scroll-right-header" ref="scrollRightHeaderAssets">
-                                    <table class="ga-data-table assets">
+                                <div class="ga-scroll-right-header" ref="scrollRightHeaderAssets"
+                                    @scroll="onRightTableHeaderScrollAssets">
+                                    <table class="ga-data-table assets" :style="assetRightTableStyle">
                                         <colgroup>
-                                            <col style="width:150px">
-                                            <col style="width:150px">
-                                            <col style="width:160px">
-                                            <col style="width:120px">
-                                            <col style="width:110px">
-                                            <col style="width:120px">
-                                            <col style="width:140px">
-                                            <col style="width:130px">
-                                            <col style="width:160px">
-                                            <col style="width:160px">
-                                            <col style="width:170px">
+                                            <col :style="assetColumnWidthStyle('status')">
+                                            <col :style="assetColumnWidthStyle('assetType')">
+                                            <col :style="assetColumnWidthStyle('performance')">
+                                            <col :style="assetColumnWidthStyle('clicks')">
+                                            <col :style="assetColumnWidthStyle('ctr')">
+                                            <col :style="assetColumnWidthStyle('impressions')">
+                                            <col :style="assetColumnWidthStyle('cost')">
+                                            <col :style="assetColumnWidthStyle('installs')">
+                                            <col :style="assetColumnWidthStyle('costPerInstall')">
+                                            <col :style="assetColumnWidthStyle('inAppActions')">
+                                            <col :style="assetColumnWidthStyle('costPerInAppAction')">
+                                            <col :style="assetColumnWidthStyle('installConvRate')">
+                                            <col :style="assetColumnWidthStyle('inAppActionConvRate')">
+                                            <col :style="assetColumnWidthStyle('installsPerThousandImpressions')">
                                         </colgroup>
                                         <thead>
                                             <tr>
-                                                <th>Status</th>
-                                                <th
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Status</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'status' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'status')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'status')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header"
                                                     :aria-sort="assetSortKey === 'assetType' ? (assetSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
                                                     <button class="ga-sort-header" type="button"
                                                         @click="toggleAssetSort('assetType')"
                                                         aria-label="Sort assets by asset type">
-                                                        <span>Asset type</span>
+                                                        <span class="ga-asset-header-label">Asset type</span>
                                                         <span class="material-symbols-outlined">
                                                             {{ assetTypeSortDirection === 'asc' ? 'arrow_upward' :
                                                             'arrow_downward' }}
                                                         </span>
                                                     </button>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'assetType' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'assetType')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'assetType')"
+                                                        @click.stop></span>
                                                 </th>
-                                                <th>Performance</th>
-                                                <th>Clicks</th>
-                                                <th>CTR</th>
-                                                <th>Impr.</th>
-                                                <th
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Performance</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'performance' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'performance')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'performance')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Clicks</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'clicks' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'clicks')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'clicks')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">CTR</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'ctr' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'ctr')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'ctr')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Impr.</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'impressions' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'impressions')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'impressions')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header"
                                                     :aria-sort="assetSortKey === 'cost' ? (assetSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
                                                     <button class="ga-sort-header" type="button"
                                                         @click="toggleAssetSort('cost')"
                                                         aria-label="Sort assets by cost">
-                                                        <span>Cost</span>
+                                                        <span class="ga-asset-header-label">Cost</span>
                                                         <span class="material-symbols-outlined">
                                                             {{ assetCostSortDirection === 'asc' ? 'arrow_upward' :
                                                             'arrow_downward' }}
                                                         </span>
                                                     </button>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'cost' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'cost')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'cost')"
+                                                        @click.stop></span>
                                                 </th>
-                                                <th>Installs</th>
-                                                <th>Cost / Install</th>
-                                                <th>In-app actions</th>
-                                                <th>Cost / In-app action</th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Installs</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'installs' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'installs')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'installs')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Cost / Install</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'costPerInstall' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'costPerInstall')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'costPerInstall')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">In-app actions</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'inAppActions' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'inAppActions')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'inAppActions')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Cost / In-app action</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'costPerInAppAction' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'costPerInAppAction')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'costPerInAppAction')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Conv. rate (install)</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'installConvRate' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'installConvRate')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'installConvRate')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Conv. rate (in-app action)</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'inAppActionConvRate' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'inAppActionConvRate')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'inAppActionConvRate')"
+                                                        @click.stop></span>
+                                                </th>
+                                                <th class="ga-resizable-header">
+                                                    <span class="ga-asset-header-label">Installs per (1000) impressions</span>
+                                                    <span class="ga-column-resize-handle"
+                                                        :class="{ resizing: resizingAssetColumn === 'installsPerThousandImpressions' }"
+                                                        @mousedown.stop.prevent="startAssetColumnResize($event, 'installsPerThousandImpressions')"
+                                                        @touchstart.stop.prevent="startAssetColumnResize($event, 'installsPerThousandImpressions')"
+                                                        @click.stop></span>
+                                                </th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -1797,23 +1924,29 @@
                                 <div class="ga-scroll-right">
                                     <div class="ga-scroll-right-inner" ref="scrollRightInnerAssets"
                                         @scroll="onRightTableScrollAssets">
-                                        <table class="ga-data-table assets">
+                                        <table class="ga-data-table assets" :style="assetRightTableStyle">
                                             <colgroup>
-                                                <col style="width:150px">
-                                                <col style="width:150px">
-                                                <col style="width:160px">
-                                                <col style="width:120px">
-                                                <col style="width:110px">
-                                                <col style="width:120px">
-                                                <col style="width:140px">
-                                                <col style="width:130px">
-                                                <col style="width:160px">
-                                                <col style="width:160px">
-                                                <col style="width:170px">
+                                                <col :style="assetColumnWidthStyle('status')">
+                                                <col :style="assetColumnWidthStyle('assetType')">
+                                                <col :style="assetColumnWidthStyle('performance')">
+                                                <col :style="assetColumnWidthStyle('clicks')">
+                                                <col :style="assetColumnWidthStyle('ctr')">
+                                                <col :style="assetColumnWidthStyle('impressions')">
+                                                <col :style="assetColumnWidthStyle('cost')">
+                                                <col :style="assetColumnWidthStyle('installs')">
+                                                <col :style="assetColumnWidthStyle('costPerInstall')">
+                                                <col :style="assetColumnWidthStyle('inAppActions')">
+                                                <col :style="assetColumnWidthStyle('costPerInAppAction')">
+                                                <col :style="assetColumnWidthStyle('installConvRate')">
+                                                <col :style="assetColumnWidthStyle('inAppActionConvRate')">
+                                                <col :style="assetColumnWidthStyle('installsPerThousandImpressions')">
                                             </colgroup>
                                             <tbody>
                                                 <tr v-if="isTableLoading" v-for="n in 5" :key="'skel-asset-r-' + n"
                                                     class="ga-table-skeleton-row">
+                                                    <td><span class="ga-table-skeleton-cell"></span></td>
+                                                    <td><span class="ga-table-skeleton-cell"></span></td>
+                                                    <td><span class="ga-table-skeleton-cell"></span></td>
                                                     <td><span class="ga-table-skeleton-cell"></span></td>
                                                     <td><span class="ga-table-skeleton-cell"></span></td>
                                                     <td><span class="ga-table-skeleton-cell"></span></td>
@@ -1862,6 +1995,9 @@
                                                     <td>{{ formatCurrency(asset.costPerInstall, '—') }}</td>
                                                     <td>{{ formatNumber(asset.inAppActions, 2) }}</td>
                                                     <td>{{ formatCurrency(asset.costPerInAppAction, '—') }}</td>
+                                                    <td>{{ percent(asset.installConvRate) }}</td>
+                                                    <td>{{ percent(asset.inAppActionConvRate) }}</td>
+                                                    <td>{{ formatNumber(asset.installsPerThousandImpressions, 2) }}</td>
                                                 </tr>
                                             </tbody>
                                         </table>

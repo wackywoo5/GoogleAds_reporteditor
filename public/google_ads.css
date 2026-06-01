@@ -2355,7 +2355,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .ga-data-table .state-col {
     width: 46px;
     text-align: left;
-    vertical-align: left;
+    vertical-align: middle;
     overflow: visible;
     position: relative;
 }
@@ -2366,16 +2366,54 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     text-align: left;
 }
 
-.ga-data-table.campaigns .status-col {
+.ga-data-table.campaigns .name-col,
+.ga-data-table.adgroups .name-col,
+.ga-data-table.assets .name-col {
+    min-width: 0;
+    width: auto;
+}
+
+.ga-data-table.campaigns .status-col,
+.ga-data-table.adgroups .status-col {
     text-align: left;
 }
 
-.ga-data-table.adgroups .name-col {
-    min-width: 260px;
+.ga-data-table.campaigns .select-col,
+.ga-data-table.campaigns .state-col {
+    vertical-align: middle;
 }
 
-.ga-data-table.assets .name-col {
-    min-width: 320px;
+.ga-frozen-left-header .ga-data-table.campaigns .select-col,
+.ga-frozen-left-header .ga-data-table.campaigns .state-col,
+.ga-frozen-left .ga-data-table.campaigns .select-col,
+.ga-frozen-left .ga-data-table.campaigns .state-col {
+    border-right: 0;
+}
+
+.ga-frozen-left .ga-data-table.campaigns .draft-row td:nth-child(-n + 2) {
+    border-right: 0;
+}
+
+.ga-data-table.campaigns .select-col {
+    line-height: 0;
+}
+
+.ga-data-table.campaigns .select-col .ga-checkbox,
+.ga-data-table.campaigns .state-col .ga-status-cell,
+.ga-data-table.campaigns .name-col .ga-nghost-awv {
+    vertical-align: middle;
+}
+
+.ga-split-table--assets {
+    grid-template-columns: var(--asset-frozen-width, 320px) minmax(0, 1fr);
+    --asset-name-min-width: 150px;
+}
+
+.ga-split-table--assets .ga-frozen-left-header,
+.ga-split-table--assets .ga-frozen-left {
+    width: var(--asset-frozen-width, 320px);
+    min-width: var(--asset-frozen-width, 320px);
+    max-width: var(--asset-frozen-width, 320px);
 }
 
 .ga-data-table.assets th.name-col,
@@ -2399,6 +2437,101 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     display: inline-flex;
     align-items: center;
     gap: 16px;
+    max-width: 100%;
+    white-space: normal;
+}
+
+.ga-data-table.assets .ga-resizable-header,
+.ga-data-table.campaigns .ga-resizable-header,
+.ga-data-table.adgroups .ga-resizable-header {
+    position: relative;
+    padding-right: 24px;
+    white-space: normal;
+}
+
+.ga-data-table.assets .ga-asset-header-label {
+    display: inline-block;
+    max-width: 100%;
+    line-height: 1.18;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.ga-data-table.assets .ga-sort-header {
+    min-width: 0;
+}
+
+.ga-data-table.assets .ga-sort-header .ga-asset-header-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.ga-column-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 12;
+}
+
+.ga-column-resize-handle::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 3px;
+    width: 1px;
+    background-color: transparent;
+    transition: background-color 0.5s ease;
+}
+
+.ga-data-table.assets thead tr:hover .ga-column-resize-handle::after,
+.ga-data-table.campaigns thead tr:hover .ga-column-resize-handle::after,
+.ga-data-table.adgroups thead tr:hover .ga-column-resize-handle::after,
+.ga-column-resize-handle:hover::after,
+.ga-column-resize-handle.resizing::after {
+    background-color: #4285f4;
+}
+
+.ga-data-table.assets th.ga-resizable-header:hover,
+.ga-data-table.campaigns th.ga-resizable-header:hover,
+.ga-data-table.adgroups th.ga-resizable-header:hover {
+    box-shadow: inset 1px 0 #4285f4, inset -1px 0 #4285f4;
+}
+
+.ga-data-table.campaigns th.campaign-budget-header {
+    text-align: right;
+    padding-left: 14px;
+    padding-right: 56px;
+    white-space: nowrap;
+}
+
+.ga-data-table.campaigns td.budget-col {
+    padding-right: 10px;
+}
+
+.ga-data-table.campaigns td.budget-col > span {
+    max-width: 100%;
+    justify-content: flex-end;
+    gap: 3px !important;
+}
+
+.ga-data-table.campaigns td.budget-col .ga-status-rowbudget {
+    margin-left: 5px;
+    margin-right: 0;
+}
+
+body.is-ga-column-resizing {
+    cursor: col-resize;
+    user-select: none;
+}
+
+body.is-ga-column-resizing * {
+    cursor: col-resize !important;
 }
 
 .ga-data-table .name-col .gear {
@@ -2429,24 +2562,16 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     cursor: pointer;
 } */
 .th-dashed {
-    position: relative;
-    display: inline-block;
+    display: inline;
+    text-decoration-line: underline;
+    text-decoration-style: dashed;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
     cursor: pointer;
 }
 
 .th-dashed::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 1.5px;
-
-    background-image: repeating-linear-gradient(to right,
-            #3c4043 0,
-            #3c4043 5px,
-            transparent 5px,
-            transparent 8px);
+    display: none;
 }
 
 .ga-sort-header {
@@ -2776,7 +2901,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 }
 
 .ga-status-trigger {
-    width: 42px;
+    width: 46px;
     height: 32px;
     border: 0;
     border-radius: 16px;
@@ -2786,7 +2911,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 6px;
     padding: 0;
 }
 
@@ -2814,8 +2939,8 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .ga-status-rowitem {
     color: #6b6b6f;
     font-size: 20px;
-    margin-left: 15px;
-    margin-right: 25px;
+    margin-left: 8px;
+    margin-right: 18px;
     vertical-align: middle;
     opacity: 0;
     transition: opacity 120ms ease;
@@ -2842,6 +2967,8 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
     mask-size: contain;
     -webkit-mask-size: contain;
+    margin-left: 14px;
+    margin-right: 14px;
     opacity: 0;
     transition: opacity 120ms ease;
 }
@@ -2986,15 +3113,16 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 }
 
 .ga-status-lines {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
     line-height: 1.25;
+    width: 100%;
 }
 
 .ga-status-line {
-    display: inline;
+    display: block;
     color: #3c4043;
     text-decoration: underline;
     text-decoration-style: dashed;
@@ -3172,8 +3300,9 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
 .asset-cell {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
+    min-width: 0;
     text-align: left !important;
 }
 
@@ -3185,6 +3314,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .asset-thumb {
     width: 48px;
     height: 48px;
+    flex: 0 0 48px;
     padding: 0;
     border: 0;
     background: transparent;
@@ -3201,6 +3331,18 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .asset-cell span,
 .asset-cell button {
     display: block;
+}
+
+.asset-cell > div {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.asset-cell > div > span,
+.asset-cell .link-button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .link-button {

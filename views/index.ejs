@@ -484,7 +484,8 @@
                                         'in-range': isInRange(day.date),
                                         'start-date': isSameDay(day.date, draftStartDate) && !isSameDay(draftStartDate, draftEndDate),
                                         'end-date': isSameDay(day.date, draftEndDate) && !isSameDay(draftStartDate, draftEndDate),
-                                        'single-date': isSameDay(day.date, draftStartDate) && isSameDay(draftStartDate, draftEndDate)
+                                        'single-date': isSameDay(day.date, draftStartDate) && isSameDay(draftStartDate, draftEndDate),
+                                        'disabled': isCalendarDateDisabled(day.date)
                                     }" @click="selectCalendarDate(day.date)">
                                                         <span class="day-number">{{ day.date.getDate() }}</span>
                                                     </div>
