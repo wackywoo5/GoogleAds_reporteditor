@@ -6,9 +6,16 @@ const CAMPAIGN_AUTO_STATUS_CACHE_KEY = 'googleAdsCampaignAutoStatuses';
 const ASSET_RANDOM_CACHE_KEY = 'googleAdsAssetRandom_';
 const DATE_FILTER_STORAGE_KEY = 'googleAdsDateFilter';
 const DATE_FILTER_STORAGE_VERSION = 'yesterday-default-v1';
+const DATE_FILTER_MIN_START_YEAR = 2025;
+const DATE_FILTER_MIN_START_MONTH = 4;
+const DATE_FILTER_MIN_START_DAY = 2;
 const ASSET_COLUMN_WIDTHS_STORAGE_KEY = 'googleAdsAssetColumnWidths';
 const PAGE_ROUTE_TRANSITION_DELAY = 420;
 const PAGE_ROUTE_TRANSITION_DURATION = 900;
+
+function getDateFilterMinStart() {
+    return new Date(DATE_FILTER_MIN_START_YEAR, DATE_FILTER_MIN_START_MONTH, DATE_FILTER_MIN_START_DAY);
+}
 
 function readCampaignStatusOverrides() {
     try {
@@ -101,8 +108,12 @@ function readDateFilterState() {
         saved = {};
     }
 
-    const startDate = parseStoredDate(saved.startDate) || parseStoredDate(defaultDateFilter.startDate);
-    const endDate = parseStoredDate(saved.endDate) || parseStoredDate(defaultDateFilter.endDate);
+    const minStartDate = getDateFilterMinStart();
+    let startDate = parseStoredDate(saved.startDate) || parseStoredDate(defaultDateFilter.startDate);
+    let endDate = parseStoredDate(saved.endDate) || parseStoredDate(defaultDateFilter.endDate);
+    if (startDate && startDate < minStartDate) startDate = new Date(minStartDate);
+    if (endDate && endDate < minStartDate) endDate = new Date(minStartDate);
+    if (startDate && endDate && startDate > endDate) startDate = new Date(endDate);
 
     return {
         selectedDateOption: saved.selectedDateOption || defaultDateFilter.selectedDateOption,
@@ -211,6 +222,38 @@ createApp({
             assetSortKey: 'cost',
             assetSortDirection: 'desc',
             assetColumnWidths: {
+                campaignName: 300,
+                campaignBudget: 180,
+                campaignStatus: 200,
+                campaignOptimization: 160,
+                campaignType: 130,
+                campaignCostPerInstall: 100,
+                campaignCostPerInAppAction: 150,
+                campaignViewThroughConv: 140,
+                campaignInstalls: 100,
+                campaignInAppActions: 120,
+                campaignParticipatedInAppActions: 190,
+                campaignCost: 100,
+                campaignCostPerParticipatedInAppActions: 230,
+                campaignConvRate: 100,
+                campaignConversions: 100,
+                campaignCostPerConv: 100,
+                adGroupName: 260,
+                adGroupStatus: 220,
+                adGroupTargetCpa: 90,
+                adGroupConversions: 130,
+                adGroupCostPerConv: 110,
+                adGroupCostPerInstall: 100,
+                adGroupCostPerInAppAction: 160,
+                adGroupViewThroughConv: 160,
+                adGroupBrandInclusions: 150,
+                adGroupLocationsOfInterest: 160,
+                adGroupInstalls: 100,
+                adGroupInAppActions: 140,
+                adGroupParticipatedInAppActions: 200,
+                adGroupCost: 120,
+                adGroupCostPerParticipatedInAppActions: 230,
+                adGroupConvRate: 120,
                 asset: 320,
                 status: 150,
                 assetType: 150,
@@ -229,6 +272,38 @@ createApp({
                 ...savedAssetColumnWidths
             },
             assetColumnMinWidths: {
+                campaignName: 260,
+                campaignBudget: 148,
+                campaignStatus: 200,
+                campaignOptimization: 140,
+                campaignType: 110,
+                campaignCostPerInstall: 96,
+                campaignCostPerInAppAction: 130,
+                campaignViewThroughConv: 120,
+                campaignInstalls: 90,
+                campaignInAppActions: 112,
+                campaignParticipatedInAppActions: 160,
+                campaignCost: 90,
+                campaignCostPerParticipatedInAppActions: 180,
+                campaignConvRate: 90,
+                campaignConversions: 90,
+                campaignCostPerConv: 90,
+                adGroupName: 180,
+                adGroupStatus: 170,
+                adGroupTargetCpa: 80,
+                adGroupConversions: 100,
+                adGroupCostPerConv: 96,
+                adGroupCostPerInstall: 96,
+                adGroupCostPerInAppAction: 130,
+                adGroupViewThroughConv: 130,
+                adGroupBrandInclusions: 120,
+                adGroupLocationsOfInterest: 130,
+                adGroupInstalls: 90,
+                adGroupInAppActions: 112,
+                adGroupParticipatedInAppActions: 160,
+                adGroupCost: 90,
+                adGroupCostPerParticipatedInAppActions: 180,
+                adGroupConvRate: 90,
                 asset: 150,
                 status: 96,
                 assetType: 104,
@@ -1060,7 +1135,7 @@ createApp({
                 ...this.assetColumnWidths,
                 [columnKey]: nextWidth
             };
-            this.$nextTick(() => this.syncAssetTableColumnWidths());
+            this.$nextTick(() => this.initTableColumnWidths());
         },
         stopAssetColumnResize() {
             if (this.assetColumnResizeState) {
@@ -1078,7 +1153,7 @@ createApp({
             document.removeEventListener('touchmove', this.handleAssetColumnResize);
             document.removeEventListener('touchend', this.stopAssetColumnResize);
             document.removeEventListener('touchcancel', this.stopAssetColumnResize);
-            this.$nextTick(() => this.syncAssetTableColumnWidths());
+            this.$nextTick(() => this.initTableColumnWidths());
         },
         syncAssetTableColumnWidths() {
             if (this.pageMode !== 'adassets') return;
@@ -1343,6 +1418,14 @@ createApp({
             if (!d || !start || !end) return false;
             return d >= start && d <= end;
         },
+        isBeforeDateFilterMinStart(date) {
+            const d = this.parseLocalDate(date);
+            const minStartDate = getDateFilterMinStart();
+            return !!d && d < minStartDate;
+        },
+        isCalendarDateDisabled(date) {
+            return this.isBeforeDateFilterMinStart(date);
+        },
         toggleDatePicker(event) {
             if (event) event.stopPropagation();
             if (this.showDatePicker) {
@@ -1468,7 +1551,7 @@ createApp({
                     this.draftEndDate = new Date(today.getFullYear(), today.getMonth(), 0);
                     break;
                 case 'allTime':
-                    this.draftStartDate = new Date(2000, 0, 1);
+                    this.draftStartDate = getDateFilterMinStart();
                     this.draftEndDate = new Date(today);
                     break;
                 case 'custom':
@@ -1478,12 +1561,17 @@ createApp({
                     break;
             }
 
+            const minStartDate = getDateFilterMinStart();
+            if (this.draftStartDate && this.draftStartDate < minStartDate) this.draftStartDate = new Date(minStartDate);
+            if (this.draftEndDate && this.draftEndDate < minStartDate) this.draftEndDate = new Date(minStartDate);
+
             if (this.draftStartDate) {
                 this.calendarMonth = new Date(this.draftStartDate);
             }
             this.$nextTick(() => this.scrollToSelectedDate());
         },
         selectCalendarDate(date) {
+            if (this.isCalendarDateDisabled(date)) return;
             if (this.selectingStartDate) {
                 this.draftStartDate = new Date(date);
                 this.draftEndDate = null;
@@ -1509,7 +1597,10 @@ createApp({
             this.selectedDateOption = 'custom';
         },
         navigateMonth(direction) {
-            this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + direction, 1);
+            const nextMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + direction, 1);
+            const minStartDate = getDateFilterMinStart();
+            const minMonth = new Date(minStartDate.getFullYear(), minStartDate.getMonth(), 1);
+            this.calendarMonth = nextMonth < minMonth ? minMonth : nextMonth;
         },
         cloneDate(date) {
             const parsed = this.parseLocalDate(date);
@@ -1519,12 +1610,18 @@ createApp({
             this.selectedDateOption = this.appliedDateOption;
             this.draftStartDate = this.cloneDate(this.startDate);
             this.draftEndDate = this.cloneDate(this.endDate);
+            const minStartDate = getDateFilterMinStart();
+            if (this.draftStartDate && this.draftStartDate < minStartDate) this.draftStartDate = new Date(minStartDate);
+            if (this.draftEndDate && this.draftEndDate < minStartDate) this.draftEndDate = new Date(minStartDate);
             this.selectingStartDate = true;
         },
         async applyDateRange() {
             if (!this.draftStartDate || !this.draftEndDate) return;
             this.startDate = this.cloneDate(this.draftStartDate);
             this.endDate = this.cloneDate(this.draftEndDate);
+            const minStartDate = getDateFilterMinStart();
+            if (this.startDate < minStartDate) this.startDate = new Date(minStartDate);
+            if (this.endDate < minStartDate) this.endDate = new Date(minStartDate);
             this.appliedDateOption = this.selectedDateOption;
             this.saveDateFilterState();
             this.showDatePicker = false;
@@ -1545,6 +1642,12 @@ createApp({
             const daySpan = Math.max(1, Math.round((end - start) / 86400000) + 1);
             start.setDate(start.getDate() + direction * daySpan);
             end.setDate(end.getDate() + direction * daySpan);
+            const minStartDate = getDateFilterMinStart();
+            if (start < minStartDate) {
+                const offset = minStartDate - start;
+                start.setTime(start.getTime() + offset);
+                end.setTime(end.getTime() + offset);
+            }
             this.startDate = start;
             this.endDate = end;
             this.appliedDateOption = 'custom';

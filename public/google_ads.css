@@ -2355,7 +2355,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .ga-data-table .state-col {
     width: 46px;
     text-align: left;
-    vertical-align: left;
+    vertical-align: middle;
     overflow: visible;
     position: relative;
 }
@@ -2366,17 +2366,42 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     text-align: left;
 }
 
-.ga-data-table.campaigns .status-col {
-    text-align: left;
-}
-
-.ga-data-table.adgroups .name-col {
-    min-width: 260px;
-}
-
+.ga-data-table.campaigns .name-col,
+.ga-data-table.adgroups .name-col,
 .ga-data-table.assets .name-col {
     min-width: 0;
     width: auto;
+}
+
+.ga-data-table.campaigns .status-col,
+.ga-data-table.adgroups .status-col {
+    text-align: left;
+}
+
+.ga-data-table.campaigns .select-col,
+.ga-data-table.campaigns .state-col {
+    vertical-align: middle;
+}
+
+.ga-frozen-left-header .ga-data-table.campaigns .select-col,
+.ga-frozen-left-header .ga-data-table.campaigns .state-col,
+.ga-frozen-left .ga-data-table.campaigns .select-col,
+.ga-frozen-left .ga-data-table.campaigns .state-col {
+    border-right: 0;
+}
+
+.ga-frozen-left .ga-data-table.campaigns .draft-row td:nth-child(-n + 2) {
+    border-right: 0;
+}
+
+.ga-data-table.campaigns .select-col {
+    line-height: 0;
+}
+
+.ga-data-table.campaigns .select-col .ga-checkbox,
+.ga-data-table.campaigns .state-col .ga-status-cell,
+.ga-data-table.campaigns .name-col .ga-nghost-awv {
+    vertical-align: middle;
 }
 
 .ga-split-table--assets {
@@ -2416,7 +2441,9 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     white-space: normal;
 }
 
-.ga-data-table.assets .ga-resizable-header {
+.ga-data-table.assets .ga-resizable-header,
+.ga-data-table.campaigns .ga-resizable-header,
+.ga-data-table.adgroups .ga-resizable-header {
     position: relative;
     padding-right: 24px;
     white-space: normal;
@@ -2463,9 +2490,39 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 }
 
 .ga-data-table.assets thead tr:hover .ga-column-resize-handle::after,
+.ga-data-table.campaigns thead tr:hover .ga-column-resize-handle::after,
+.ga-data-table.adgroups thead tr:hover .ga-column-resize-handle::after,
 .ga-column-resize-handle:hover::after,
 .ga-column-resize-handle.resizing::after {
     background-color: #4285f4;
+}
+
+.ga-data-table.assets th.ga-resizable-header:hover,
+.ga-data-table.campaigns th.ga-resizable-header:hover,
+.ga-data-table.adgroups th.ga-resizable-header:hover {
+    box-shadow: inset 1px 0 #4285f4, inset -1px 0 #4285f4;
+}
+
+.ga-data-table.campaigns th.campaign-budget-header {
+    text-align: right;
+    padding-left: 14px;
+    padding-right: 56px;
+    white-space: nowrap;
+}
+
+.ga-data-table.campaigns td.budget-col {
+    padding-right: 10px;
+}
+
+.ga-data-table.campaigns td.budget-col > span {
+    max-width: 100%;
+    justify-content: flex-end;
+    gap: 3px !important;
+}
+
+.ga-data-table.campaigns td.budget-col .ga-status-rowbudget {
+    margin-left: 5px;
+    margin-right: 0;
 }
 
 body.is-ga-column-resizing {
@@ -2505,24 +2562,16 @@ body.is-ga-column-resizing * {
     cursor: pointer;
 } */
 .th-dashed {
-    position: relative;
-    display: inline-block;
+    display: inline;
+    text-decoration-line: underline;
+    text-decoration-style: dashed;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
     cursor: pointer;
 }
 
 .th-dashed::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 1.5px;
-
-    background-image: repeating-linear-gradient(to right,
-            #3c4043 0,
-            #3c4043 5px,
-            transparent 5px,
-            transparent 8px);
+    display: none;
 }
 
 .ga-sort-header {
@@ -2852,7 +2901,7 @@ body.is-ga-column-resizing * {
 }
 
 .ga-status-trigger {
-    width: 42px;
+    width: 46px;
     height: 32px;
     border: 0;
     border-radius: 16px;
@@ -2862,7 +2911,7 @@ body.is-ga-column-resizing * {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 6px;
     padding: 0;
 }
 
@@ -2890,8 +2939,8 @@ body.is-ga-column-resizing * {
 .ga-status-rowitem {
     color: #6b6b6f;
     font-size: 20px;
-    margin-left: 15px;
-    margin-right: 25px;
+    margin-left: 8px;
+    margin-right: 18px;
     vertical-align: middle;
     opacity: 0;
     transition: opacity 120ms ease;
@@ -2918,6 +2967,8 @@ body.is-ga-column-resizing * {
 
     mask-size: contain;
     -webkit-mask-size: contain;
+    margin-left: 14px;
+    margin-right: 14px;
     opacity: 0;
     transition: opacity 120ms ease;
 }
@@ -3062,15 +3113,16 @@ body.is-ga-column-resizing * {
 }
 
 .ga-status-lines {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
     line-height: 1.25;
+    width: 100%;
 }
 
 .ga-status-line {
-    display: inline;
+    display: block;
     color: #3c4043;
     text-decoration: underline;
     text-decoration-style: dashed;
