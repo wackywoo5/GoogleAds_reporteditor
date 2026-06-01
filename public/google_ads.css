@@ -2375,7 +2375,20 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 }
 
 .ga-data-table.assets .name-col {
-    min-width: 320px;
+    min-width: 0;
+    width: auto;
+}
+
+.ga-split-table--assets {
+    grid-template-columns: var(--asset-frozen-width, 320px) minmax(0, 1fr);
+    --asset-name-min-width: 150px;
+}
+
+.ga-split-table--assets .ga-frozen-left-header,
+.ga-split-table--assets .ga-frozen-left {
+    width: var(--asset-frozen-width, 320px);
+    min-width: var(--asset-frozen-width, 320px);
+    max-width: var(--asset-frozen-width, 320px);
 }
 
 .ga-data-table.assets th.name-col,
@@ -2399,6 +2412,69 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
     display: inline-flex;
     align-items: center;
     gap: 16px;
+    max-width: 100%;
+    white-space: normal;
+}
+
+.ga-data-table.assets .ga-resizable-header {
+    position: relative;
+    padding-right: 24px;
+    white-space: normal;
+}
+
+.ga-data-table.assets .ga-asset-header-label {
+    display: inline-block;
+    max-width: 100%;
+    line-height: 1.18;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.ga-data-table.assets .ga-sort-header {
+    min-width: 0;
+}
+
+.ga-data-table.assets .ga-sort-header .ga-asset-header-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.ga-column-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 12;
+}
+
+.ga-column-resize-handle::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 3px;
+    width: 1px;
+    background-color: transparent;
+    transition: background-color 0.5s ease;
+}
+
+.ga-data-table.assets thead tr:hover .ga-column-resize-handle::after,
+.ga-column-resize-handle:hover::after,
+.ga-column-resize-handle.resizing::after {
+    background-color: #4285f4;
+}
+
+body.is-ga-column-resizing {
+    cursor: col-resize;
+    user-select: none;
+}
+
+body.is-ga-column-resizing * {
+    cursor: col-resize !important;
 }
 
 .ga-data-table .name-col .gear {
@@ -3172,8 +3248,9 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 
 .asset-cell {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
+    min-width: 0;
     text-align: left !important;
 }
 
@@ -3185,6 +3262,7 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .asset-thumb {
     width: 48px;
     height: 48px;
+    flex: 0 0 48px;
     padding: 0;
     border: 0;
     background: transparent;
@@ -3201,6 +3279,18 @@ button.ga-floating-add:focus-visible .ga-create-tooltip {
 .asset-cell span,
 .asset-cell button {
     display: block;
+}
+
+.asset-cell > div {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.asset-cell > div > span,
+.asset-cell .link-button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .link-button {

@@ -80,6 +80,48 @@ function assetTypes(rows) {
   return JSON.parse(JSON.stringify(rows.map(asset => asset.assetType)));
 }
 
+test('ad asset table includes install conversion metric columns', () => {
+  const template = fs.readFileSync(path.join(__dirname, '..', 'views', 'google_ads.ejs'), 'utf8');
+
+  assert.match(template, /Conv\. rate \(install\)/);
+  assert.match(template, /Conv\. rate \(in-app action\)/);
+  assert.match(template, /Installs per \(1000\) impressions/);
+  assert.match(template, /percent\(asset\.installConvRate\)/);
+  assert.match(template, /percent\(asset\.inAppActionConvRate\)/);
+  assert.match(template, /formatNumber\(asset\.installsPerThousandImpressions,\s*2\)/);
+});
+
+test('ad asset table headers are resizable and bind column widths', () => {
+  const template = fs.readFileSync(path.join(__dirname, '..', 'views', 'google_ads.ejs'), 'utf8');
+  const script = fs.readFileSync(path.join(__dirname, '..', 'public', 'google_ads.js'), 'utf8');
+  const styles = fs.readFileSync(path.join(__dirname, '..', 'public', 'google_ads.css'), 'utf8');
+
+  assert.match(template, /:style="assetRightTableStyle"/);
+  assert.match(template, /:style="assetLeftTableStyle"/);
+  assert.match(template, /ga-split-table--assets/);
+  assert.match(template, /:style="assetSplitTableStyle"/);
+  assert.match(template, /:style="assetLeftPaneStyle"/);
+  assert.match(template, /assetColumnWidthStyle\('installsPerThousandImpressions'\)/);
+  assert.match(template, /class="ga-column-resize-handle"/);
+  assert.match(template, /@mousedown\.stop\.prevent="startAssetColumnResize\(\$event, 'asset'\)"/);
+  assert.match(template, /@mousedown\.stop\.prevent="startAssetColumnResize\(\$event, 'installConvRate'\)"/);
+  assert.match(script, /ASSET_COLUMN_WIDTHS_STORAGE_KEY/);
+  assert.match(script, /asset:\s*150,/);
+  assert.match(script, /assetSplitTableStyle\(\)/);
+  assert.match(script, /assetLeftPaneStyle\(\)/);
+  assert.match(script, /startAssetColumnResize\(event, columnKey\)/);
+  assert.match(script, /syncAssetTableColumnWidths\(\)/);
+  assert.match(styles, /\.ga-split-table--assets\s*\{[^}]*grid-template-columns:\s*var\(--asset-frozen-width,\s*320px\) minmax\(0,\s*1fr\);/s);
+  assert.match(styles, /\.ga-split-table--assets \.ga-frozen-left-header,\s*\.ga-split-table--assets \.ga-frozen-left\s*\{[^}]*width:\s*var\(--asset-frozen-width,\s*320px\);/s);
+  assert.match(styles, /\.ga-data-table\.assets\s+\.ga-asset-header-label\s*\{[^}]*white-space:\s*normal;/s);
+  assert.match(styles, /\.asset-thumb\s*\{[^}]*flex:\s*0 0 48px;/s);
+  assert.match(styles, /\.asset-cell > div > span,\s*\.asset-cell \.link-button\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(styles, /\.ga-column-resize-handle\s*\{[^}]*cursor:\s*col-resize;/s);
+  assert.match(styles, /\.ga-column-resize-handle::after\s*\{[^}]*transition:\s*background-color 0\.5s ease;/s);
+  assert.match(styles, /\.ga-data-table\.assets thead tr:hover \.ga-column-resize-handle::after,/);
+  assert.match(styles, /background-color:\s*#4285f4;/);
+});
+
 test('asset rows sort by asset type and toggle direction', () => {
   const config = loadGoogleAdsAppConfig();
   const context = createAssetContext(config);
@@ -116,6 +158,26 @@ test('asset rows use cost-gated minimum metrics without install or action fallba
     assert.ok(row.cost >= 0.1 && row.cost <= 2);
     assert.equal(row.installs, 0);
     assert.equal(row.inAppActions, 0);
+    assert.equal(row.installConvRate, 0);
+    assert.equal(row.inAppActionConvRate, 0);
+    assert.equal(row.installsPerThousandImpressions, 0);
+  }
+});
+
+test('asset rows derive install conversion metrics from row totals', () => {
+  const config = loadGoogleAdsAppConfig();
+  const context = createAssetContext(config);
+  const rows = config.computed.assetRows.call(context);
+
+  assert.ok(rows.length > 0);
+  for (const row of rows) {
+    const expectedInstallRate = row.clicks ? (row.installs / row.clicks) * 100 : 0;
+    const expectedActionRate = row.clicks ? (row.inAppActions / row.clicks) * 100 : 0;
+    const expectedInstallsPerThousand = row.impressions ? (row.installs / row.impressions) * 1000 : 0;
+
+    assert.equal(row.installConvRate, expectedInstallRate);
+    assert.equal(row.inAppActionConvRate, expectedActionRate);
+    assert.equal(row.installsPerThousandImpressions, expectedInstallsPerThousand);
   }
 });
 

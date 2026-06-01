@@ -6,6 +6,7 @@ const CAMPAIGN_AUTO_STATUS_CACHE_KEY = 'googleAdsCampaignAutoStatuses';
 const ASSET_RANDOM_CACHE_KEY = 'googleAdsAssetRandom_';
 const DATE_FILTER_STORAGE_KEY = 'googleAdsDateFilter';
 const DATE_FILTER_STORAGE_VERSION = 'yesterday-default-v1';
+const ASSET_COLUMN_WIDTHS_STORAGE_KEY = 'googleAdsAssetColumnWidths';
 const PAGE_ROUTE_TRANSITION_DELAY = 420;
 const PAGE_ROUTE_TRANSITION_DURATION = 900;
 
@@ -111,9 +112,19 @@ function readDateFilterState() {
     };
 }
 
+function readAssetColumnWidths() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(ASSET_COLUMN_WIDTHS_STORAGE_KEY) || '{}');
+        return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+    } catch (error) {
+        return {};
+    }
+}
+
 createApp({
     data() {
         const initialDateFilter = readDateFilterState();
+        const savedAssetColumnWidths = readAssetColumnWidths();
         return {
             pageMode: getInitialPageMode(),
             dropdown: '',
@@ -199,6 +210,43 @@ createApp({
             metricDeltaRatios: {},
             assetSortKey: 'cost',
             assetSortDirection: 'desc',
+            assetColumnWidths: {
+                asset: 320,
+                status: 150,
+                assetType: 150,
+                performance: 160,
+                clicks: 120,
+                ctr: 110,
+                impressions: 120,
+                cost: 140,
+                installs: 130,
+                costPerInstall: 160,
+                inAppActions: 160,
+                costPerInAppAction: 170,
+                installConvRate: 150,
+                inAppActionConvRate: 170,
+                installsPerThousandImpressions: 170,
+                ...savedAssetColumnWidths
+            },
+            assetColumnMinWidths: {
+                asset: 150,
+                status: 96,
+                assetType: 104,
+                performance: 120,
+                clicks: 86,
+                ctr: 80,
+                impressions: 86,
+                cost: 92,
+                installs: 92,
+                costPerInstall: 112,
+                inAppActions: 120,
+                costPerInAppAction: 130,
+                installConvRate: 112,
+                inAppActionConvRate: 132,
+                installsPerThousandImpressions: 138
+            },
+            assetColumnResizeState: null,
+            resizingAssetColumn: '',
             tooltip: {
                 visible: false,
                 text: '',
@@ -713,6 +761,9 @@ createApp({
                 row.ctr = row.impressions ? (row.clicks / row.impressions) * 100 : 0;
                 row.costPerInstall = row.installs ? row.cost / row.installs : 0;
                 row.costPerInAppAction = row.inAppActions ? row.cost / row.inAppActions : 0;
+                row.installConvRate = row.clicks ? (row.installs / row.clicks) * 100 : 0;
+                row.inAppActionConvRate = row.clicks ? (row.inAppActions / row.clicks) * 100 : 0;
+                row.installsPerThousandImpressions = row.impressions ? (row.installs / row.impressions) * 1000 : 0;
             }
 
             return all.sort((left, right) => {
@@ -739,6 +790,48 @@ createApp({
         },
         assetTypeSortDirection() {
             return this.assetSortKey === 'assetType' ? this.assetSortDirection : 'asc';
+        },
+        assetLeftColumnKeys() {
+            return ['asset'];
+        },
+        assetRightColumnKeys() {
+            return [
+                'status',
+                'assetType',
+                'performance',
+                'clicks',
+                'ctr',
+                'impressions',
+                'cost',
+                'installs',
+                'costPerInstall',
+                'inAppActions',
+                'costPerInAppAction',
+                'installConvRate',
+                'inAppActionConvRate',
+                'installsPerThousandImpressions'
+            ];
+        },
+        assetLeftTableStyle() {
+            return this.assetLockedTableStyle(this.assetLeftColumnKeys);
+        },
+        assetRightTableStyle() {
+            return this.assetLockedTableStyle(this.assetRightColumnKeys);
+        },
+        assetSplitTableStyle() {
+            const width = this.getAssetColumnWidth('asset');
+            return {
+                '--asset-frozen-width': `${width}px`,
+                '--asset-name-min-width': `${this.assetColumnMinWidths.asset}px`
+            };
+        },
+        assetLeftPaneStyle() {
+            const width = this.getAssetColumnWidth('asset');
+            return {
+                width: `${width}px`,
+                minWidth: `${width}px`,
+                maxWidth: `${width}px`
+            };
         },
         activeRows() {
             if (this.pageMode === 'adassets') return this.assetRows;
@@ -910,6 +1003,121 @@ createApp({
 
             this.assetSortKey = key;
             this.assetSortDirection = key === 'assetType' ? 'asc' : 'desc';
+        },
+        getAssetColumnWidth(columnKey) {
+            const width = Number(this.assetColumnWidths[columnKey]);
+            const minWidth = this.assetColumnMinWidths[columnKey] || 80;
+            if (Number.isFinite(width) && width > 0) return Math.max(minWidth, width);
+            return minWidth;
+        },
+        assetColumnWidthStyle(columnKey) {
+            return { width: `${this.getAssetColumnWidth(columnKey)}px` };
+        },
+        assetLockedTableStyle(columnKeys) {
+            const width = columnKeys.reduce((total, columnKey) => total + this.getAssetColumnWidth(columnKey), 0);
+            return {
+                tableLayout: 'fixed',
+                width: `${width}px`,
+                minWidth: `${width}px`,
+                maxWidth: `${width}px`
+            };
+        },
+        getPointerClientX(event) {
+            const touch = event.touches && event.touches[0]
+                ? event.touches[0]
+                : event.changedTouches && event.changedTouches[0];
+            if (touch) return touch.clientX;
+            return Number.isFinite(event.clientX) ? event.clientX : null;
+        },
+        startAssetColumnResize(event, columnKey) {
+            const clientX = this.getPointerClientX(event);
+            if (clientX === null) return;
+
+            this.assetColumnResizeState = {
+                columnKey,
+                startX: clientX,
+                startWidth: this.getAssetColumnWidth(columnKey)
+            };
+            this.resizingAssetColumn = columnKey;
+            document.body.classList.add('is-ga-column-resizing');
+            document.addEventListener('mousemove', this.handleAssetColumnResize);
+            document.addEventListener('mouseup', this.stopAssetColumnResize);
+            document.addEventListener('touchmove', this.handleAssetColumnResize, { passive: false });
+            document.addEventListener('touchend', this.stopAssetColumnResize);
+            document.addEventListener('touchcancel', this.stopAssetColumnResize);
+        },
+        handleAssetColumnResize(event) {
+            if (!this.assetColumnResizeState) return;
+            if (event.cancelable) event.preventDefault();
+
+            const clientX = this.getPointerClientX(event);
+            if (clientX === null) return;
+
+            const { columnKey, startX, startWidth } = this.assetColumnResizeState;
+            const minWidth = this.assetColumnMinWidths[columnKey] || 80;
+            const nextWidth = Math.max(minWidth, Math.round(startWidth + clientX - startX));
+            this.assetColumnWidths = {
+                ...this.assetColumnWidths,
+                [columnKey]: nextWidth
+            };
+            this.$nextTick(() => this.syncAssetTableColumnWidths());
+        },
+        stopAssetColumnResize() {
+            if (this.assetColumnResizeState) {
+                try {
+                    localStorage.setItem(ASSET_COLUMN_WIDTHS_STORAGE_KEY, JSON.stringify(this.assetColumnWidths));
+                } catch (error) {
+                }
+            }
+
+            this.assetColumnResizeState = null;
+            this.resizingAssetColumn = '';
+            document.body.classList.remove('is-ga-column-resizing');
+            document.removeEventListener('mousemove', this.handleAssetColumnResize);
+            document.removeEventListener('mouseup', this.stopAssetColumnResize);
+            document.removeEventListener('touchmove', this.handleAssetColumnResize);
+            document.removeEventListener('touchend', this.stopAssetColumnResize);
+            document.removeEventListener('touchcancel', this.stopAssetColumnResize);
+            this.$nextTick(() => this.syncAssetTableColumnWidths());
+        },
+        syncAssetTableColumnWidths() {
+            if (this.pageMode !== 'adassets') return;
+
+            const applyWidths = (tables, columnKeys) => {
+                const width = columnKeys.reduce((total, columnKey) => total + this.getAssetColumnWidth(columnKey), 0);
+                const lockCss = `table-layout:fixed !important;width:${width}px !important;min-width:${width}px !important;max-width:${width}px !important;`;
+
+                tables.forEach(table => {
+                    if (!table) return;
+                    table.style.cssText = lockCss;
+                    const cols = table.querySelectorAll('colgroup col');
+                    columnKeys.forEach((columnKey, index) => {
+                        if (cols[index]) cols[index].style.width = `${this.getAssetColumnWidth(columnKey)}px`;
+                    });
+                });
+            };
+
+            const rightInner = this.$refs.scrollRightInnerAssets;
+            const rightHeader = this.$refs.scrollRightHeaderAssets;
+            applyWidths(
+                [
+                    rightHeader && rightHeader.querySelector('table.ga-data-table'),
+                    rightInner && rightInner.querySelector('table.ga-data-table')
+                ],
+                this.assetRightColumnKeys
+            );
+
+            applyWidths(
+                [
+                    document.querySelector('.ga-frozen-left-header table.ga-data-table.assets'),
+                    document.querySelector('.ga-frozen-left table.ga-data-table.assets')
+                ],
+                this.assetLeftColumnKeys
+            );
+
+            if (rightInner && rightHeader) {
+                rightHeader.scrollLeft = rightInner.scrollLeft;
+            }
         },
         toggleCampaignSort(key) {
             if (!['campaign', 'installs', 'cost'].includes(key)) return;
@@ -1866,6 +2074,14 @@ createApp({
             this.handleRightTableScroll();
         },
 
+        onRightTableHeaderScrollAssets() {
+            const inner = this.$refs.scrollRightInnerAssets;
+            const header = this.$refs.scrollRightHeaderAssets;
+            if (inner && header) {
+                inner.scrollLeft = header.scrollLeft;
+            }
+        },
+
         handleRightTableScroll() {
             const mode = this.pageMode;
             const refSuffix = mode === 'campaigns' ? '' : mode === 'adgroups' ? 'Adgroups' : 'Assets';
@@ -1897,6 +2113,12 @@ createApp({
                     if (frozenHeader) frozenHeader.style.top = '';
                     if (scrollHeader) scrollHeader.style.top = '';
                     if (assetStrength) assetStrength.style.top = '';
+                }
+
+                if (mode === 'adassets') {
+                    this.syncAssetTableColumnWidths();
+                    this._syncTableHover();
+                    return;
                 }
 
                 // ── Sync RIGHT table ──
@@ -2197,6 +2419,7 @@ createApp({
         this.initTableColumnWidths();
     },
     beforeUnmount() {
+        this.stopAssetColumnResize();
         document.removeEventListener('click', this.closeDropdown);
         document.removeEventListener('click', this.handleClickOutside);
         document.removeEventListener('click', this.handleAnyClick, true);
